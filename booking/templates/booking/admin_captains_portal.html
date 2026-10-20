@@ -1,0 +1,380 @@
+{% extends "booking/base.html" %}
+
+{% block title %}Admin Captain Verification & Permit Portal - RideGo{% endblock %}
+
+{% block content %}
+<div class="admin-shell">
+
+    <!-- SUB-NAVIGATION: DUAL ADMIN CONTROLS -->
+    <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+        <a href="{% url 'admin_business_dashboard' %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: #ffffff; color: #475569; border-radius: 14px; font-weight: 700; font-size: 14px; text-decoration: none; border: 1.5px solid #cbd5e1; transition: all 0.2s ease;">
+            📊 Business Analytics & Dynamic Pricing
+        </a>
+        <a href="{% url 'admin_portal' %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: #0f172a; color: #ffffff; border-radius: 14px; font-weight: 800; font-size: 14px; text-decoration: none; box-shadow: 0 4px 14px rgba(15,23,42,0.25); border: 2px solid #6366f1;">
+            🛡️ Captain Verification & Permits
+        </a>
+        <a href="/admin/booking/driver/" target="_blank" style="margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; background: #f8fafc; color: #334155; border-radius: 14px; font-weight: 700; font-size: 13px; text-decoration: none; border: 1px solid #e2e8f0;">
+            ⚙️ Django Admin ↗
+        </a>
+    </div>
+
+    <!-- ADMIN HERO SECTION WITH KPIS -->
+    <div class="admin-hero">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; position: relative; z-index: 2;">
+            <div>
+                <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(99, 102, 241, 0.2); border: 1px solid rgba(165, 180, 252, 0.3); padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; color: #c7d2fe; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">
+                    🛡️ OFFICIAL TRANSPORT SAFETY ADMINISTRATION
+                </div>
+                <h1 style="font-size: 28px; font-weight: 800; margin: 0; color: #ffffff; letter-spacing: -0.5px;">
+                    Captain Verification & Permit Portal
+                </h1>
+                <p style="color: #94a3b8; font-size: 14px; margin-top: 6px; max-width: 600px;">
+                    Review driver license submissions, verify vehicle registration certificates, and grant or revoke commercial driving permits.
+                </p>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; padding: 8px 16px; font-size: 13px; color: #f8fafc;">
+                    Admin: <strong>{{ user.username }}</strong>
+                </div>
+                <a href="/admin/booking/driver/" target="_blank" style="background: #ffffff; color: #0f172a; text-decoration: none; padding: 8px 16px; border-radius: 12px; font-weight: 800; font-size: 13px; display: inline-flex; align-items: center; gap: 6px;">
+                    Django Admin ↗
+                </a>
+            </div>
+        </div>
+
+        <!-- 4 KPI CARDS -->
+        <div class="admin-stats-grid">
+            <div class="admin-stat-card">
+                <span class="stat-label">Pending Verifications</span>
+                <div class="stat-val" style="color: #f59e0b;">{{ pending_count }}</div>
+                <small style="color: #cbd5e1; font-size: 11px;">Requires Admin Action</small>
+            </div>
+            <div class="admin-stat-card">
+                <span class="stat-label">Approved & Permitted</span>
+                <div class="stat-val" style="color: #10b981;">{{ approved_count }}</div>
+                <small style="color: #cbd5e1; font-size: 11px;">Active Commercial Drivers</small>
+            </div>
+            <div class="admin-stat-card">
+                <span class="stat-label">Rejected / Suspended</span>
+                <div class="stat-val" style="color: #f87171;">{{ rejected_count }}</div>
+                <small style="color: #cbd5e1; font-size: 11px;">Ineligible Applications</small>
+            </div>
+            <div class="admin-stat-card">
+                <span class="stat-label">Total Registered</span>
+                <div class="stat-val" style="color: #ffffff;">{{ total_count }}</div>
+                <small style="color: #cbd5e1; font-size: 11px;">Fleet across Bengaluru</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- FILTER TABS & SEARCH -->
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <a
+                href="{% url 'admin_portal' %}?status=all"
+                style="padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.2s; {% if current_filter == 'all' %}background: #0f172a; color: #ffffff;{% else %}background: #ffffff; color: #475569; border: 1px solid #e2e8f0;{% endif %}"
+            >
+                All Captains ({{ total_count }})
+            </a>
+
+            <a
+                href="{% url 'admin_portal' %}?status=pending"
+                style="padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.2s; {% if current_filter == 'pending' %}background: #f59e0b; color: #0f172a;{% else %}background: #ffffff; color: #b45309; border: 1px solid #fde68a;{% endif %}"
+            >
+                ⏳ Pending Review ({{ pending_count }})
+            </a>
+
+            <a
+                href="{% url 'admin_portal' %}?status=approved"
+                style="padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.2s; {% if current_filter == 'approved' %}background: #10b981; color: #ffffff;{% else %}background: #ffffff; color: #065f46; border: 1px solid #a7f3d0;{% endif %}"
+            >
+                ✓ Approved ({{ approved_count }})
+            </a>
+
+            <a
+                href="{% url 'admin_portal' %}?status=rejected"
+                style="padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; transition: all 0.2s; {% if current_filter == 'rejected' %}background: #ef4444; color: #ffffff;{% else %}background: #ffffff; color: #991b1b; border: 1px solid #fecaca;{% endif %}"
+            >
+                ❌ Rejected ({{ rejected_count }})
+            </a>
+        </div>
+
+        <div style="font-size: 13px; color: #64748b;">
+            Showing <strong>{{ captains|length }}</strong> applications
+        </div>
+    </div>
+
+    <!-- CAPTAINS TABLE / LIST -->
+    <div class="captain-table-container">
+        <div style="overflow-x: auto;">
+            <table class="captain-table">
+                <thead>
+                    <tr>
+                        <th>Captain Profile</th>
+                        <th>Vehicle Details</th>
+                        <th>DL & RC Documents</th>
+                        <th>Status</th>
+                        <th>Submitted On</th>
+                        <th style="text-align: right;">Admin Permit Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for c in captains %}
+                    <tr id="row-captain-{{ c.id }}">
+                        <!-- PROFILE -->
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 14px;">
+                                <div style="width: 44px; height: 44px; border-radius: 50%; background: #171717; color: #f9d949; display: grid; place-items: center; font-size: 18px; font-weight: 800; border: 2px solid #cbd5e1;">
+                                    {{ c.display_name|first|upper }}
+                                </div>
+                                <div>
+                                    <strong style="font-size: 14px; color: #0f172a; display: block;">
+                                        {{ c.display_name }}
+                                    </strong>
+                                    <small style="color: #64748b; font-size: 12px;">
+                                        @{{ c.user.username }} • 📞 {{ c.phone }}
+                                    </small>
+                                </div>
+                            </div>
+                        </td>
+
+                        <!-- VEHICLE -->
+                        <td>
+                            <div>
+                                <span style="font-size: 11px; font-weight: 800; background: #f1f5f9; color: #334155; padding: 2px 8px; border-radius: 6px; text-transform: uppercase;">
+                                    {{ c.get_vehicle_type_display }}
+                                </span>
+                                <div style="font-size: 13px; font-weight: 700; color: #0f172a; margin-top: 4px;">
+                                    {{ c.vehicle_model }}
+                                </div>
+                                <code style="font-size: 11px; color: #0f172a; background: #e2e8f0; padding: 2px 6px; border-radius: 4px;">
+                                    {{ c.vehicle_number }}
+                                </code>
+                            </div>
+                        </td>
+
+                        <!-- DOCUMENTS -->
+                        <td>
+                            <div style="font-size: 12px; line-height: 1.6;">
+                                <div><strong>DL:</strong> <code style="color: #0369a1;">{{ c.license_number|default:"Not Provided" }}</code></div>
+                                <div><strong>RC:</strong> <code style="color: #475569;">{{ c.rc_number|default:"Not Provided" }}</code></div>
+                                <button
+                                    type="button"
+                                    onclick="openDocModal('{{ c.id }}', '{{ c.display_name|escapejs }}', '{{ c.get_vehicle_type_display|escapejs }}', '{{ c.vehicle_model|escapejs }}', '{{ c.vehicle_number|escapejs }}', '{{ c.license_number|escapejs }}', '{{ c.rc_number|escapejs }}', '{{ c.verification_status|escapejs }}', '{{ c.rejection_reason|escapejs }}')"
+                                    style="margin-top: 4px; background: none; border: none; color: #4f46e5; font-size: 11px; font-weight: 700; cursor: pointer; padding: 0; text-decoration: underline;"
+                                >
+                                    🔍 Inspect Digital DL Card →
+                                </button>
+                            </div>
+                        </td>
+
+                        <!-- STATUS -->
+                        <td>
+                            {% if c.verification_status == 'approved' %}
+                                <span class="permit-status-pill status-pill-approved">
+                                    ✓ Permitted
+                                </span>
+                            {% elif c.verification_status == 'rejected' %}
+                                <span class="permit-status-pill status-pill-rejected">
+                                    ✗ Rejected
+                                </span>
+                            {% elif c.verification_status == 'suspended' %}
+                                <span class="permit-status-pill status-pill-suspended">
+                                    ⏸ Suspended
+                                </span>
+                            {% else %}
+                                <span class="permit-status-pill status-pill-pending">
+                                    ⏳ Pending Review
+                                </span>
+                            {% endif %}
+                        </td>
+
+                        <!-- DATE -->
+                        <td style="color: #64748b; font-size: 12px;">
+                            {{ c.created_at|date:"d M Y, H:i" }}
+                        </td>
+
+                        <!-- ACTIONS -->
+                        <td style="text-align: right;">
+                            <div style="display: inline-flex; align-items: center; gap: 8px;">
+                                {% if c.verification_status != 'approved' %}
+                                    <!-- APPROVE BUTTON -->
+                                    <a
+                                        href="{% url 'admin_approve_captain' c.id %}"
+                                        onclick="return confirm('Grant official commercial driving permit to Captain {{ c.display_name|escapejs }}?')"
+                                        style="background: #10b981; color: #ffffff; text-decoration: none; padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; white-space: nowrap; transition: background 0.2s;"
+                                        title="Approve and issue permit"
+                                    >
+                                        ✓ Approve & Permit
+                                    </a>
+                                {% endif %}
+
+                                {% if c.verification_status != 'rejected' %}
+                                    <!-- REJECT BUTTON (OPEN REASON PROMPT) -->
+                                    <button
+                                        type="button"
+                                        onclick="openRejectModal('{{ c.id }}', '{{ c.display_name|escapejs }}')"
+                                        style="background: #fee2e2; color: #dc2626; border: 1px solid #fecaca; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;"
+                                        title="Reject application"
+                                    >
+                                        ✗ Reject
+                                    </button>
+                                {% endif %}
+
+                                <!-- SUSPEND / TOGGLE -->
+                                <a
+                                    href="{% url 'admin_suspend_captain' c.id %}"
+                                    style="background: #f1f5f9; color: #475569; text-decoration: none; padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 600;"
+                                    title="Toggle Suspension"
+                                >
+                                    {% if c.verification_status == 'suspended' %}🔄 Reactivate{% else %}⏸ Hold{% endif %}
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 50px 20px; color: #64748b;">
+                            No captains found under this filter.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- MODAL 1: INSPECT DIGITAL DRIVING LICENSE MODAL -->
+<div id="doc-modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(6px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #ffffff; border-radius: 24px; max-width: 500px; width: 100%; padding: 28px; box-shadow: 0 25px 50px rgba(0,0,0,0.25); position: relative;">
+        <button
+            type="button"
+            onclick="closeDocModal()"
+            style="position: absolute; top: 18px; right: 20px; background: none; border: none; font-size: 20px; color: #64748b; cursor: pointer;"
+        >
+            ✕
+        </button>
+
+        <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0 0 4px;" id="modal-captain-name">
+            Captain Inspection
+        </h3>
+        <p style="font-size: 13px; color: #64748b; margin: 0 0 20px;">
+            Simulated Smart Card & Legal Transport Credentials
+        </p>
+
+        <!-- EMBEDDED DIGITAL SMART DL CARD -->
+        <div class="smart-dl-card" style="margin-bottom: 24px;">
+            <div class="smart-dl-header">
+                <div>
+                    <div style="font-size: 9px; font-weight: 800; letter-spacing: 1.5px; color: #f59e0b; text-transform: uppercase;">
+                        GOVT OF KARNATAKA • TRANSPORT DEPT
+                    </div>
+                    <div style="font-size: 13px; font-weight: 800; letter-spacing: 0.5px;">
+                        COMMERCIAL DRIVER PERMIT
+                    </div>
+                </div>
+                <div class="smart-dl-hologram"></div>
+            </div>
+
+            <div class="smart-dl-body">
+                <div class="smart-dl-photo" id="modal-photo-icon">
+                    🛵
+                </div>
+                <div class="smart-dl-details">
+                    <div><strong>NAME:</strong> <span id="modal-dl-name">---</span></div>
+                    <div><strong>DL NO:</strong> <span id="modal-dl-num" style="font-family: monospace;">---</span></div>
+                    <div><strong>RC NO:</strong> <span id="modal-rc-num" style="font-family: monospace;">---</span></div>
+                    <div><strong>VEHICLE:</strong> <span id="modal-vehicle-info">---</span></div>
+                    <div style="margin-top: 6px;">
+                        <strong>STATUS:</strong> <span id="modal-status-badge">---</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="modal-rejection-info" style="display: none; background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 12px; font-size: 12px; color: #991b1b; margin-bottom: 20px;"></div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" onclick="closeDocModal()" style="padding: 10px 18px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;">
+                Close
+            </button>
+            <a id="modal-approve-btn" href="#" style="padding: 10px 20px; background: #10b981; color: #fff; text-decoration: none; border-radius: 10px; font-weight: 800; font-size: 13px;">
+                ✓ Approve & Issue Permit
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL 2: REJECT APPLICATION REASON PROMPT -->
+<div id="reject-modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(6px); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #ffffff; border-radius: 20px; max-width: 460px; width: 100%; padding: 26px; box-shadow: 0 25px 50px rgba(0,0,0,0.25);">
+        <h3 style="font-size: 18px; font-weight: 800; color: #ef4444; margin: 0 0 6px;">
+            Reject Captain Application
+        </h3>
+        <p style="font-size: 13px; color: #64748b; margin: 0 0 16px;" id="reject-captain-label">
+            Specify the verification reason for rejection:
+        </p>
+
+        <form method="POST" id="reject-form" action="">
+            {% csrf_token %}
+            <textarea
+                name="rejection_reason"
+                rows="4"
+                required
+                placeholder="e.g. Driving license photo blurred; expired vehicle insurance document."
+                style="width: 100%; padding: 12px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 13px; outline: none; margin-bottom: 20px;"
+            >Driving license number verification failed against transport database.</textarea>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="closeRejectModal()" style="padding: 10px 16px; background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;">
+                    Cancel
+                </button>
+                <button type="submit" style="padding: 10px 20px; background: #ef4444; color: #fff; border: none; border-radius: 10px; font-weight: 800; font-size: 13px; cursor: pointer;">
+                    Confirm Rejection
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openDocModal(id, name, vtype, vmodel, vplate, dl, rc, status, reason) {
+    document.getElementById('modal-captain-name').innerText = name + ' (' + vtype + ')';
+    document.getElementById('modal-dl-name').innerText = name.toUpperCase();
+    document.getElementById('modal-dl-num').innerText = dl || 'NOT PROVIDED';
+    document.getElementById('modal-rc-num').innerText = rc || 'NOT PROVIDED';
+    document.getElementById('modal-vehicle-info').innerText = vmodel + ' (' + vplate + ')';
+    document.getElementById('modal-status-badge').innerText = status.toUpperCase();
+    
+    document.getElementById('modal-approve-btn').href = '/admin-portal/permit/' + id + '/approve/';
+
+    const reasonBox = document.getElementById('modal-rejection-info');
+    if (reason && reason.trim()) {
+        reasonBox.style.display = 'block';
+        reasonBox.innerHTML = '<strong>Logged Rejection Reason:</strong> ' + reason;
+    } else {
+        reasonBox.style.display = 'none';
+    }
+
+    const overlay = document.getElementById('doc-modal-overlay');
+    overlay.style.display = 'flex';
+}
+
+function closeDocModal() {
+    document.getElementById('doc-modal-overlay').style.display = 'none';
+}
+
+function openRejectModal(id, name) {
+    document.getElementById('reject-captain-label').innerText = 'Reject application for Captain ' + name + ':';
+    document.getElementById('reject-form').action = '/admin-portal/permit/' + id + '/reject/';
+    document.getElementById('reject-modal-overlay').style.display = 'flex';
+}
+
+function closeRejectModal() {
+    document.getElementById('reject-modal-overlay').style.display = 'none';
+}
+</script>
+{% endblock %}

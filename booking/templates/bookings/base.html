@@ -1,0 +1,229 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>{% block title %}RideGo - India's Fast Bike & Cab Booking{% endblock %}</title>
+    <meta name="description" content="Book affordable bike-taxis, autos, and cabs in seconds. Safe, fast, and reliable urban commute inspired by Rapido.">
+    <link rel="stylesheet" href="{% static 'booking/css/style.css' %}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    {% block extra_css %}{% endblock %}
+</head>
+<body id="app-body">
+
+<!-- ==============================================
+     1. DESKTOP WEB APPLICATION NAVBAR
+     Shown on Desktop, Tablets & Laptops (min-width: 769px)
+============================================== -->
+<header class="desktop-navbar">
+    <a href="{% url 'home' %}" class="logo" id="brand-logo">
+        RideGo<span>.</span>
+    </a>
+
+    <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #555; background: #fafaf8; border: 1px solid #e8e8e3; padding: 6px 14px; border-radius: 20px;">
+        <span>📍 Bengaluru City</span>
+        <span style="color: #bbb;">•</span>
+        <span style="color: #16854a; font-weight: 700;">🟢 24/7 Live Service</span>
+    </div>
+
+    <nav class="nav-links">
+        <a href="{% url 'home' %}">Home</a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'my_rides' %}">My Rides</a>
+            <a href="{% url 'profile' %}">Profile ({{ user.username }})</a>
+            <a href="{% url 'logout' %}" class="nav-login">Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="nav-login">Login</a>
+            <a href="{% url 'register' %}" class="nav-register">Sign Up</a>
+        {% endif %}
+    </nav>
+</header>
+
+
+<!-- ==============================================
+     2. NATIVE MOBILE APP HEADER
+     Shown on Mobile Devices (max-width: 768px)
+============================================== -->
+<header class="mobile-app-header">
+    <div class="mobile-header-brand">
+        <a href="{% url 'home' %}" class="mobile-brand-icon" style="text-decoration: none;">
+            ⚡
+        </a>
+        <div class="mobile-header-location">
+            <span class="mobile-location-label">CURRENT LOCATION</span>
+            <span class="mobile-location-val">
+                📍 Bengaluru Central ▾
+            </span>
+        </div>
+    </div>
+
+    <div class="mobile-header-actions">
+        <a href="tel:112" class="mobile-sos-pill">
+            🛡️ SOS
+        </a>
+        {% if user.is_authenticated %}
+            <a href="{% url 'profile' %}" style="width: 32px; height: 32px; background: #171717; color: #f9d949; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 12px; text-decoration: none;">
+                {{ user.username|first|upper }}
+            </a>
+        {% else %}
+            <a href="{% url 'login' %}" style="font-size: 12px; font-weight: 800; color: #171717; padding: 4px 8px; border: 1px solid #171717; border-radius: 12px; text-decoration: none;">
+                Login
+            </a>
+        {% endif %}
+    </div>
+</header>
+
+{% if messages %}
+<div class="container" style="margin-top: 14px;">
+    <div class="messages">
+        {% for message in messages %}
+        <div class="message {{ message.tags }}" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- MAIN CONTENT -->
+<main id="main-content-viewport">
+    {% block content %}{% endblock %}
+</main>
+
+
+<!-- ==============================================
+     3. NATIVE MOBILE APP BOTTOM NAVIGATION DOCK
+     Fixed at the bottom of the screen on Mobile
+============================================== -->
+<nav class="mobile-bottom-nav">
+    <a href="{% url 'home' %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'home' or request.resolver_match.url_name == 'select_ride' or request.resolver_match.url_name == 'booking_confirm' or request.resolver_match.url_name == 'searching_driver' or request.resolver_match.url_name == 'driver_assigned' or request.resolver_match.url_name == 'start_ride' %}active{% endif %}">
+        <span class="nav-icon">🏠</span>
+        <span>Book</span>
+    </a>
+
+    <a href="{% url 'my_rides' %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'my_rides' or request.resolver_match.url_name == 'ride_detail' %}active{% endif %}">
+        <span class="nav-icon">🛵</span>
+        <span>My Rides</span>
+        {% if user.is_authenticated %}
+            <span class="nav-badge-dot"></span>
+        {% endif %}
+    </a>
+
+    <a href="{% url 'profile' %}" class="mobile-nav-item" onclick="showQuickWallet(event)">
+        <span class="nav-icon">💳</span>
+        <span>Wallet</span>
+    </a>
+
+    <a href="{% if user.is_authenticated %}{% url 'profile' %}{% else %}{% url 'login' %}{% endif %}" class="mobile-nav-item {% if request.resolver_match.url_name == 'profile' or request.resolver_match.url_name == 'login' or request.resolver_match.url_name == 'register' %}active{% endif %}">
+        <span class="nav-icon">👤</span>
+        <span>Account</span>
+    </a>
+</nav>
+
+
+<!-- ==============================================
+     4. DESKTOP FOOTER
+     Only shown on Desktop / Tablet (hidden on mobile app)
+============================================== -->
+<footer class="footer">
+    <div class="footer-top">
+        <div class="footer-brand">
+            <h2>RideGo<span>.</span></h2>
+            <p>Smart, safe, and lightning-fast bike taxi, auto, and cab mobility. Beat the traffic every single day.</p>
+            <div style="margin-top: 12px; font-size: 12px; color: #777;">
+                🛡️ 24x7 Safety Helpline: <strong>1800-244-RIDE</strong>
+            </div>
+        </div>
+
+        <div class="footer-column">
+            <h4>Services</h4>
+            <a href="{% url 'home' %}#services">Bike Captain</a>
+            <a href="{% url 'home' %}#services">Auto Rickshaw</a>
+            <a href="{% url 'home' %}#services">Cab Economy</a>
+            <a href="{% url 'home' %}#safety">Safety & Helmet</a>
+        </div>
+
+        <div class="footer-column">
+            <h4>Quick Links</h4>
+            <a href="{% url 'home' %}">Book Ride</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'my_rides' %}">Ride History</a>
+                <a href="{% url 'profile' %}">Account Settings</a>
+            {% else %}
+                <a href="{% url 'login' %}">Captain / User Login</a>
+                <a href="{% url 'register' %}">Create Account</a>
+            {% endif %}
+        </div>
+
+        <div class="footer-column">
+            <h4>Safety First</h4>
+            <span style="font-size: 13px; color: #666; line-height: 1.6;">
+                Every RideGo ride is protected with verified 4-digit Captain OTPs, sanitized helmets, and live trip status.
+            </span>
+        </div>
+    </div>
+
+    <div class="footer-bottom">
+        <span>© 2026 RideGo Technologies. Dual-mode UI: Native Mobile App + Desktop Web Application.</span>
+        <span>Secure • Reliable • Affordable</span>
+    </div>
+</footer>
+
+
+<!-- ==============================================
+     5. INTERACTIVE DEVICE MODE SWITCHER (ON DESKTOP)
+     Lets desktop users preview BOTH the Web App and Mobile App
+============================================== -->
+<div class="device-toggle-float" id="device-toggle-btn" onclick="toggleDeviceSimulation()" title="Click to preview native Mobile Application layout">
+    <span id="device-toggle-icon">📱</span>
+    <span id="device-toggle-text">Preview Mobile App</span>
+</div>
+
+<!-- SCRIPTS -->
+<script src="{% static 'booking/js/app.js' %}"></script>
+<script>
+// Device Simulation Toggle for Desktop Testing
+function toggleDeviceSimulation() {
+    const body = document.getElementById('app-body');
+    const btn = document.getElementById('device-toggle-btn');
+    const icon = document.getElementById('device-toggle-icon');
+    const text = document.getElementById('device-toggle-text');
+
+    if (body.classList.contains('simulating-mobile-app')) {
+        // Switch back to Desktop Web App
+        body.classList.remove('simulating-mobile-app');
+        icon.innerText = '📱';
+        text.innerText = 'Preview Mobile App';
+        sessionStorage.setItem('preferred_device_mode', 'desktop');
+    } else {
+        // Switch to Mobile App Simulator
+        body.classList.add('simulating-mobile-app');
+        icon.innerText = '💻';
+        text.innerText = 'Back to Web App';
+        sessionStorage.setItem('preferred_device_mode', 'mobile');
+    }
+}
+
+// Restore mode if user preferred
+if (sessionStorage.getItem('preferred_device_mode') === 'mobile' && window.innerWidth > 768) {
+    document.getElementById('app-body').classList.add('simulating-mobile-app');
+    document.getElementById('device-toggle-icon').innerText = '💻';
+    document.getElementById('device-toggle-text').innerText = 'Back to Web App';
+}
+
+function showQuickWallet(e) {
+    // If not authenticated, let normal link flow
+    {% if user.is_authenticated %}
+    e.preventDefault();
+    alert("💳 RideGo Wallet Balance: ₹350.00\n\n✓ Instant 1-tap ride payments\n✓ Auto-refund enabled\n\nRedirecting to Account Settings...");
+    window.location.href = "{% url 'profile' %}";
+    {% endif %}
+}
+</script>
+{% block extra_js %}{% endblock %}
+
+</body>
+</html>

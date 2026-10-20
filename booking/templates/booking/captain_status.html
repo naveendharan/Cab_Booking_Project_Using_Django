@@ -1,0 +1,198 @@
+{% extends "booking/base.html" %}
+
+{% block title %}Captain Application Status - RideGo{% endblock %}
+
+{% block content %}
+<div style="min-height: calc(100vh - 120px); padding: 40px 20px; background: linear-gradient(180deg, #fafaf9 0%, #f1f5f9 100%);">
+    <div style="max-width: 800px; margin: 0 auto;">
+
+        <!-- STATUS TIMELINE HEADER -->
+        <div style="text-align: center; margin-bottom: 30px;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: #e0f2fe; border: 1px solid #bae6fd; padding: 6px 16px; border-radius: 30px; font-size: 12px; font-weight: 800; color: #0284c7; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">
+                CAPTAIN VERIFICATION DASHBOARD
+            </div>
+            <h1 style="font-size: 30px; font-weight: 800; color: #0f172a; margin: 0;">
+                Application & Permit Status
+            </h1>
+            <p style="color: #64748b; font-size: 14px; margin-top: 6px;">
+                Applicant ID: <strong>#CPT-{{ driver.id|stringformat:"04d" }}</strong> • {{ driver.display_name }} ({{ driver.get_vehicle_type_display }})
+            </p>
+        </div>
+
+        <!-- 3-STEP REAL VERIFICATION TIMELINE -->
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.04);">
+            <div style="display: flex; justify-content: space-between; position: relative;">
+                
+                <!-- STEP 1 -->
+                <div style="flex: 1; text-align: center; position: relative; z-index: 2;">
+                    <div style="width: 42px; height: 42px; border-radius: 50%; background: #10b981; color: #fff; margin: 0 auto 10px; display: grid; place-items: center; font-size: 18px; font-weight: 800; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);">
+                        ✓
+                    </div>
+                    <strong style="display: block; font-size: 13px; color: #0f172a;">Application Submitted</strong>
+                    <small style="color: #64748b; font-size: 11px;">Profile & Documents Received</small>
+                </div>
+
+                <!-- STEP 2 -->
+                <div style="flex: 1; text-align: center; position: relative; z-index: 2;">
+                    <div style="width: 42px; height: 42px; border-radius: 50%; {% if driver.verification_status == 'approved' %}background: #10b981; color: #fff; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);{% elif driver.verification_status == 'rejected' %}background: #ef4444; color: #fff; box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);{% else %}background: #f59e0b; color: #fff; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4); animation: pulseBadge 2s infinite;{% endif %} margin: 0 auto 10px; display: grid; place-items: center; font-size: 18px; font-weight: 800;">
+                        {% if driver.verification_status == 'approved' %}✓{% elif driver.verification_status == 'rejected' %}✗{% else %}⏳{% endif %}
+                    </div>
+                    <strong style="display: block; font-size: 13px; color: #0f172a;">Admin & RTO Review</strong>
+                    <small style="font-size: 11px; {% if driver.verification_status == 'approved' %}color: #10b981; font-weight: 700;{% elif driver.verification_status == 'rejected' %}color: #ef4444; font-weight: 700;{% else %}color: #d97706; font-weight: 700;{% endif %}">
+                        {{ driver.get_verification_status_display }}
+                    </small>
+                </div>
+
+                <!-- STEP 3 -->
+                <div style="flex: 1; text-align: center; position: relative; z-index: 2;">
+                    <div style="width: 42px; height: 42px; border-radius: 50%; {% if driver.is_permitted %}background: #10b981; color: #fff; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);{% else %}background: #e2e8f0; color: #94a3b8;{% endif %} margin: 0 auto 10px; display: grid; place-items: center; font-size: 18px; font-weight: 800;">
+                        {% if driver.is_permitted %}🛡️{% else %}🔒{% endif %}
+                    </div>
+                    <strong style="display: block; font-size: 13px; color: #0f172a;">Commercial Permit</strong>
+                    <small style="color: #64748b; font-size: 11px;">
+                        {% if driver.is_permitted %}Active & Online{% else %}Locked until verified{% endif %}
+                    </small>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN STATUS NOTIFICATION CARD -->
+        {% if driver.verification_status == 'approved' %}
+            <!-- APPROVED STATE -->
+            <div style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); border-radius: 20px; padding: 32px; color: #ffffff; text-align: center; margin-bottom: 24px; box-shadow: 0 15px 35px rgba(6, 95, 70, 0.3);">
+                <div style="width: 64px; height: 64px; border-radius: 50%; background: #10b981; color: #fff; display: grid; place-items: center; font-size: 32px; margin: 0 auto 16px; border: 3px solid #6ee7b7;">
+                    ✓
+                </div>
+                <h2 style="font-size: 24px; font-weight: 800; margin: 0 0 8px;">Congratulations! You are an Approved Captain</h2>
+                <p style="color: #d1fae5; font-size: 14px; max-width: 500px; margin: 0 auto 24px;">
+                    Your driving license and commercial vehicle registration have been verified and approved by the Transport Safety Admin. You are now permitted to accept real ride bookings!
+                </p>
+                <a href="{% url 'captain_dashboard' %}" style="display: inline-flex; align-items: center; gap: 8px; background: #f9d949; color: #171717; font-weight: 800; font-size: 15px; padding: 14px 28px; border-radius: 12px; text-decoration: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+                    🚀 Open Captain Cockpit & Go Online →
+                </a>
+            </div>
+
+        {% elif driver.verification_status == 'rejected' %}
+            <!-- REJECTED STATE -->
+            <div style="background: #ffffff; border: 2px solid #ef4444; border-radius: 20px; padding: 32px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.08);">
+                <div style="display: flex; align-items: flex-start; gap: 18px;">
+                    <div style="width: 52px; height: 52px; border-radius: 50%; background: #fee2e2; color: #ef4444; display: grid; place-items: center; font-size: 24px; flex-shrink: 0;">
+                        ⚠️
+                    </div>
+                    <div style="flex: 1;">
+                        <span class="permit-status-pill status-pill-rejected" style="margin-bottom: 8px;">
+                            Application Rejected
+                        </span>
+                        <h2 style="font-size: 20px; font-weight: 800; color: #0f172a; margin: 4px 0 8px;">
+                            Verification Feedback from Safety Inspector
+                        </h2>
+                        <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 14px; color: #991b1b; font-size: 14px; margin-bottom: 20px;">
+                            <strong>Reason:</strong> {{ driver.rejection_reason|default:"Driving license number or vehicle documents could not be validated against official transport records." }}
+                        </div>
+
+                        <!-- RE-SUBMISSION FORM -->
+                        <div style="border-top: 1px solid #f1f5f9; padding-top: 20px;">
+                            <h3 style="font-size: 15px; font-weight: 800; color: #0f172a; margin: 0 0 12px;">
+                                ✏️ Update Details & Re-submit for Inspection
+                            </h3>
+                            <form method="POST" action="{% url 'captain_status' %}">
+                                {% csrf_token %}
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;">
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">CORRECT DL NUMBER</label>
+                                        <input type="text" name="license_number" value="{{ driver.license_number }}" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: monospace; font-weight: 700;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">CORRECT RC NUMBER</label>
+                                        <input type="text" name="rc_number" value="{{ driver.rc_number }}" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: monospace; font-weight: 700;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 11px; font-weight: 800; color: #64748b; display: block; margin-bottom: 4px;">VEHICLE NUMBER</label>
+                                        <input type="text" name="vehicle_number" value="{{ driver.vehicle_number }}" required style="width: 100%; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-family: monospace; font-weight: 700;">
+                                    </div>
+                                </div>
+                                <button type="submit" style="background: #171717; color: #f9d949; border: none; padding: 12px 22px; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 14px;">
+                                    Re-Submit Application for Verification →
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        {% else %}
+            <!-- PENDING STATE (DEFAULT ON NEW APPLICATION) -->
+            <div style="background: #ffffff; border: 2px solid #f59e0b; border-radius: 20px; padding: 32px; margin-bottom: 24px; box-shadow: 0 10px 30px rgba(245, 158, 11, 0.08);">
+                <div style="display: flex; align-items: flex-start; gap: 20px; flex-wrap: wrap;">
+                    <div style="width: 56px; height: 56px; border-radius: 50%; background: #fffbeb; color: #d97706; display: grid; place-items: center; font-size: 26px; border: 2px solid #fde68a; flex-shrink: 0; animation: pulseBadge 2s infinite;">
+                        ⏳
+                    </div>
+                    <div style="flex: 1; min-width: 280px;">
+                        <span class="permit-status-pill status-pill-pending" style="margin-bottom: 8px;">
+                            Inspection In Progress
+                        </span>
+                        <h2 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 4px 0 8px;">
+                            Under Admin Verification
+                        </h2>
+                        <p style="color: #475569; font-size: 14px; line-height: 1.6; margin-bottom: 16px;">
+                            Your documents are currently queued in the <strong>RideGo Admin Permit Management Portal</strong>. Once our verification officers review your Driving License and Vehicle Registration Certificate, your commercial permit will be granted.
+                        </p>
+
+                        <!-- ADMIN PORTAL DIRECT SHORTCUT FOR TESTING -->
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                            <div>
+                                <strong style="font-size: 13px; color: #1e1b4b; display: block;">Testing the Admin Verification Flow?</strong>
+                                <small style="font-size: 12px; color: #64748b;">You can log in to the Admin Portal to review, verify, and permit this application right now.</small>
+                            </div>
+                            <a href="{% url 'admin_portal' %}" style="background: #4f46e5; color: #ffffff; padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 13px; text-decoration: none;">
+                                Open Admin Permit Portal →
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- SMART DIGITAL DRIVING LICENSE PREVIEW CARD -->
+        <div style="margin-top: 30px;">
+            <div style="font-size: 12px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; text-align: center;">
+                Digital Smart Permit Card
+            </div>
+
+            <div class="smart-dl-card">
+                <div class="smart-dl-header">
+                    <div>
+                        <div style="font-size: 10px; font-weight: 800; letter-spacing: 1.5px; color: #f59e0b; text-transform: uppercase;">
+                            GOVT OF KARNATAKA • TRANSPORT DEPT
+                        </div>
+                        <div style="font-size: 14px; font-weight: 800; letter-spacing: 0.5px;">
+                            COMMERCIAL DRIVING PERMIT
+                        </div>
+                    </div>
+                    <div class="smart-dl-hologram"></div>
+                </div>
+
+                <div class="smart-dl-body">
+                    <div class="smart-dl-photo">
+                        🛵
+                    </div>
+                    <div class="smart-dl-details">
+                        <div><strong>NAME:</strong> {{ driver.display_name|upper }}</div>
+                        <div><strong>DL NO:</strong> <span style="font-family: monospace;">{{ driver.license_number|default:"KA-05-2022-0091244" }}</span></div>
+                        <div><strong>RC NO:</strong> <span style="font-family: monospace;">{{ driver.rc_number|default:"RC-KA05-882190" }}</span></div>
+                        <div><strong>VEHICLE:</strong> {{ driver.vehicle_model }} ({{ driver.vehicle_number }})</div>
+                        <div><strong>CATEGORY:</strong> {{ driver.get_vehicle_type_display|upper }}</div>
+                        <div style="margin-top: 6px;">
+                            <strong>STATUS:</strong>
+                            <span style="font-weight: 800; {% if driver.is_permitted %}color: #34d399;{% elif driver.verification_status == 'rejected' %}color: #f87171;{% else %}color: #fbbf24;{% endif %}">
+                                {{ driver.get_verification_status_display|upper }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,643 @@
+{% extends "booking/base.html" %}
+
+{% block title %}Business Intelligence & Dynamic Pricing - RideGo Executive Portal{% endblock %}
+
+{% block content %}
+<div class="admin-shell">
+
+    <!-- SUB-NAVIGATION: DUAL ADMIN CONTROLS -->
+    <div style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+        <a href="{% url 'admin_business_dashboard' %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: #0f172a; color: #ffffff; border-radius: 14px; font-weight: 800; font-size: 14px; text-decoration: none; box-shadow: 0 4px 14px rgba(15,23,42,0.25); border: 2px solid #3b82f6;">
+            📊 Business Analytics & Dynamic Pricing
+        </a>
+        <a href="{% url 'admin_portal' %}" style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: #ffffff; color: #475569; border-radius: 14px; font-weight: 700; font-size: 14px; text-decoration: none; border: 1.5px solid #cbd5e1; transition: all 0.2s ease;">
+            🛡️ Captain Verification & Permits
+        </a>
+        <a href="/admin/booking/pricingplan/" target="_blank" style="margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 10px 18px; background: #f8fafc; color: #334155; border-radius: 14px; font-weight: 700; font-size: 13px; text-decoration: none; border: 1px solid #e2e8f0;">
+            ⚙️ Django Admin ↗
+        </a>
+    </div>
+
+    <!-- EXECUTIVE HERO STATS -->
+    <div class="admin-hero" style="background: linear-gradient(135deg, #090d16 0%, #1e1b4b 55%, #0f172a 100%);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 20px; position: relative; z-index: 2;">
+            <div>
+                <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(147, 197, 253, 0.3); padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; color: #93c5fd; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;">
+                    📈 REAL-TIME EXECUTIVE FINANCIAL INTELLIGENCE
+                </div>
+                <h1 style="font-size: 30px; font-weight: 800; margin: 0; color: #ffffff; letter-spacing: -0.5px;">
+                    Rides, Profit & Dynamic Pricing Dashboard
+                </h1>
+                <p style="color: #94a3b8; font-size: 14px; margin-top: 6px; max-width: 650px;">
+                    Monitor gross GMV, company net profit cut, captain disbursements, and adjust ride prices, base fares, and surge rates in real time.
+                </p>
+            </div>
+
+            <!-- QUICK SURGE PRESET TOOLBAR -->
+            <div style="background: rgba(255, 255, 255, 0.07); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 18px; padding: 14px 18px; display: flex; flex-direction: column; gap: 8px;">
+                <div style="font-size: 11px; font-weight: 800; color: #cbd5e1; text-transform: uppercase; letter-spacing: 0.8px; display: flex; align-items: center; justify-content: space-between;">
+                    <span>⚡ Quick Global Surge Multiplier</span>
+                    <span style="color: #f59e0b; font-size: 11px;">Instant Live Update</span>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <form method="POST" action="{% url 'admin_update_pricing' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="quick_surge">
+                        <input type="hidden" name="preset" value="normal">
+                        <button type="submit" style="padding: 6px 12px; background: rgba(255,255,255,0.12); color: #f8fafc; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.2s;">
+                            ☀️ Normal (1.0x)
+                        </button>
+                    </form>
+                    <form method="POST" action="{% url 'admin_update_pricing' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="quick_surge">
+                        <input type="hidden" name="preset" value="rain">
+                        <button type="submit" style="padding: 6px 12px; background: linear-gradient(135deg, #0284c7, #2563eb); color: #ffffff; border: none; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(37,99,235,0.3);">
+                            ⛈️ Rain Surge (1.4x)
+                        </button>
+                    </form>
+                    <form method="POST" action="{% url 'admin_update_pricing' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="quick_surge">
+                        <input type="hidden" name="preset" value="rush">
+                        <button type="submit" style="padding: 6px 12px; background: linear-gradient(135deg, #d97706, #ea580c); color: #ffffff; border: none; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; box-shadow: 0 4px 10px rgba(234,88,12,0.3);">
+                            🚦 Rush Hour (1.3x)
+                        </button>
+                    </form>
+                    <form method="POST" action="{% url 'admin_update_pricing' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="quick_surge">
+                        <input type="hidden" name="preset" value="late_night">
+                        <button type="submit" style="padding: 6px 12px; background: linear-gradient(135deg, #6366f1, #7c3aed); color: #ffffff; border: none; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer;">
+                            🌙 Late Night (1.2x)
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5 EXECUTIVE KPI TILES -->
+        <div class="admin-stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); margin-top: 28px;">
+            <!-- 1. TOTAL RIDES -->
+            <div class="admin-stat-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="stat-label">Total Rides Booked</span>
+                    <span style="font-size: 16px;">🚕</span>
+                </div>
+                <div class="stat-val" style="color: #ffffff;">{{ total_rides }}</div>
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 11px; color: #94a3b8; margin-top: 4px;">
+                    <span style="color: #10b981; font-weight: 700;">{{ completed_rides }} Completed</span>
+                    <span>•</span>
+                    <span style="color: #38bdf8; font-weight: 700;">{{ active_rides }} Active</span>
+                </div>
+            </div>
+
+            <!-- 2. GROSS REVENUE -->
+            <div class="admin-stat-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="stat-label">Gross Bookings (GMV)</span>
+                    <span style="font-size: 16px;">💳</span>
+                </div>
+                <div class="stat-val" style="color: #38bdf8;">₹{{ gross_revenue|floatformat:2 }}</div>
+                <div style="font-size: 11px; color: #cbd5e1; margin-top: 4px;">
+                    Today: <strong style="color: #ffffff;">₹{{ today_revenue|floatformat:2 }}</strong>
+                </div>
+            </div>
+
+            <!-- 3. PLATFORM NET PROFIT -->
+            <div class="admin-stat-card" style="border: 1px solid rgba(52, 211, 153, 0.4); background: rgba(16, 185, 129, 0.09);">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="stat-label" style="color: #34d399;">Platform Net Profit</span>
+                    <span style="font-size: 16px;">💎</span>
+                </div>
+                <div class="stat-val" style="color: #34d399;">₹{{ total_profit|floatformat:2 }}</div>
+                <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #a7f3d0; margin-top: 4px;">
+                    <span>Margin Cut: <strong>{{ take_rate }}%</strong></span>
+                    <span>Today: <strong>₹{{ today_profit|floatformat:2 }}</strong></span>
+                </div>
+            </div>
+
+            <!-- 4. CAPTAIN PAYOUT -->
+            <div class="admin-stat-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="stat-label">Driver Payouts (80%)</span>
+                    <span style="font-size: 16px;">🤝</span>
+                </div>
+                <div class="stat-val" style="color: #fbbf24;">₹{{ total_payout|floatformat:2 }}</div>
+                <div style="font-size: 11px; color: #cbd5e1; margin-top: 4px;">
+                    Disbursed directly to Captains
+                </div>
+            </div>
+
+            <!-- 5. AVG PROFIT / RIDE -->
+            <div class="admin-stat-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <span class="stat-label">Avg Profit / Ride</span>
+                    <span style="font-size: 16px;">📊</span>
+                </div>
+                <div class="stat-val" style="color: #c084fc;">₹{{ avg_profit_per_ride|floatformat:2 }}</div>
+                <div style="font-size: 11px; color: #cbd5e1; margin-top: 4px;">
+                    Cancelled: <span style="color: #f87171; font-weight: 700;">{{ cancelled_rides }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- =========================================================
+         SECTION: DYNAMIC PRICING ENGINE & PRICE EDITOR
+         ========================================================= -->
+    <div style="margin-bottom: 36px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 14px; margin-bottom: 18px;">
+            <div>
+                <div style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: #3b82f6; text-transform: uppercase; letter-spacing: 0.8px;">
+                    ⚙️ LIVE FARE ARCHITECTURE
+                </div>
+                <h2 style="font-size: 22px; font-weight: 800; color: #0f172a; margin: 4px 0 0; letter-spacing: -0.3px;">
+                    Dynamic Pricing & Margin Management
+                </h2>
+                <p style="font-size: 13px; color: #64748b; margin: 4px 0 0;">
+                    Change base fares, per-km rates, platform profit margins, and surge pricing anytime. Changes reflect immediately across all passenger booking calculations.
+                </p>
+            </div>
+
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 8px 14px; font-size: 12px; color: #1e40af; font-weight: 700;">
+                💡 Formula: <span style="font-family: 'JetBrains Mono', monospace;">Fare = (Base + Distance × PerKm) × Surge</span>
+            </div>
+        </div>
+
+        <!-- 3 VEHICLE CARDS WITH INDIVIDUAL EDITORS -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 20px;">
+            {% for item in vehicle_breakdown %}
+            <div style="background: #ffffff; border-radius: 20px; border: 1.5px solid #e2e8f0; box-shadow: 0 10px 25px rgba(0,0,0,0.04); overflow: hidden; display: flex; flex-direction: column;">
+                <!-- Header -->
+                <div style="padding: 18px 22px; background: #fafafa; border-bottom: 1.5px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 32px;">{{ item.icon }}</span>
+                        <div>
+                            <h3 style="font-size: 17px; font-weight: 800; color: #0f172a; margin: 0;">{{ item.label }}</h3>
+                            <span style="font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">
+                                {{ item.key|upper }} CATEGORY
+                            </span>
+                        </div>
+                    </div>
+                    {% if item.plan.is_active %}
+                        <span style="background: #dcfce7; color: #15803d; border: 1px solid #86efac; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800;">
+                            ACTIVE LIVE
+                        </span>
+                    {% else %}
+                        <span style="background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800;">
+                            PAUSED
+                        </span>
+                    {% endif %}
+                </div>
+
+                <!-- Mini Metrics -->
+                <div style="padding: 14px 22px; background: #ffffff; border-bottom: 1px dashed #e2e8f0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center;">
+                    <div>
+                        <div style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Total Rides</div>
+                        <div style="font-size: 16px; font-weight: 800; color: #0f172a;">{{ item.total_rides }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Gross Bookings</div>
+                        <div style="font-size: 16px; font-weight: 800; color: #0284c7;">₹{{ item.revenue|floatformat:0 }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">RideGo Profit</div>
+                        <div style="font-size: 16px; font-weight: 800; color: #16a34a;">₹{{ item.profit|floatformat:0 }}</div>
+                    </div>
+                </div>
+
+                <!-- Interactive Edit Form -->
+                <form method="POST" action="{% url 'admin_update_pricing' %}" style="padding: 20px 22px; flex: 1; display: flex; flex-direction: column; gap: 16px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="update_single">
+                    <input type="hidden" name="plan_id" value="{{ item.plan.id }}">
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label style="display: block; font-size: 11px; font-weight: 800; color: #475569; margin-bottom: 4px; text-transform: uppercase;">
+                                Base Fare (₹)
+                            </label>
+                            <div style="position: relative;">
+                                <span style="position: absolute; left: 10px; top: 10px; color: #94a3b8; font-weight: 700;">₹</span>
+                                <input
+                                    type="number"
+                                    step="0.5"
+                                    name="base_fare"
+                                    value="{{ item.plan.base_fare|floatformat:2 }}"
+                                    required
+                                    style="width: 100%; padding: 8px 10px 8px 24px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-weight: 800; font-family: 'JetBrains Mono', monospace; outline: none;"
+                                    onchange="recalcCardSample('{{ item.key }}')"
+                                    id="input-base-{{ item.key }}"
+                                >
+                            </div>
+                        </div>
+
+                        <div>
+                            <label style="display: block; font-size: 11px; font-weight: 800; color: #475569; margin-bottom: 4px; text-transform: uppercase;">
+                                Per Km Rate (₹)
+                            </label>
+                            <div style="position: relative;">
+                                <span style="position: absolute; left: 10px; top: 10px; color: #94a3b8; font-weight: 700;">₹</span>
+                                <input
+                                    type="number"
+                                    step="0.5"
+                                    name="per_km_rate"
+                                    value="{{ item.plan.per_km_rate|floatformat:2 }}"
+                                    required
+                                    style="width: 100%; padding: 8px 10px 8px 24px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-weight: 800; font-family: 'JetBrains Mono', monospace; outline: none;"
+                                    onchange="recalcCardSample('{{ item.key }}')"
+                                    id="input-perkm-{{ item.key }}"
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div>
+                            <label style="display: block; font-size: 11px; font-weight: 800; color: #475569; margin-bottom: 4px; text-transform: uppercase;">
+                                Profit Margin (%)
+                            </label>
+                            <div style="position: relative;">
+                                <input
+                                    type="number"
+                                    step="1"
+                                    min="0"
+                                    max="100"
+                                    name="commission_percentage"
+                                    value="{{ item.plan.commission_percentage|floatformat:0 }}"
+                                    required
+                                    style="width: 100%; padding: 8px 24px 8px 10px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; font-weight: 800; font-family: 'JetBrains Mono', monospace; outline: none;"
+                                    onchange="recalcCardSample('{{ item.key }}')"
+                                    id="input-comm-{{ item.key }}"
+                                >
+                                <span style="position: absolute; right: 10px; top: 10px; color: #94a3b8; font-weight: 700;">%</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label style="display: block; font-size: 11px; font-weight: 800; color: #475569; margin-bottom: 4px; text-transform: uppercase;">
+                                Surge Multiplier (x)
+                            </label>
+                            <div style="position: relative;">
+                                <input
+                                    type="number"
+                                    step="0.05"
+                                    min="1.0"
+                                    max="5.0"
+                                    name="surge_multiplier"
+                                    value="{{ item.plan.surge_multiplier|floatformat:2 }}"
+                                    required
+                                    style="width: 100%; padding: 8px 24px 8px 10px; border: 1.5px solid {% if item.plan.surge_multiplier > 1.0 %}#f59e0b{% else %}#cbd5e1{% endif %}; border-radius: 10px; font-size: 14px; font-weight: 800; font-family: 'JetBrains Mono', monospace; outline: none; {% if item.plan.surge_multiplier > 1.0 %}background: #fffbeb; color: #b45309;{% endif %}"
+                                    onchange="recalcCardSample('{{ item.key }}')"
+                                    id="input-surge-{{ item.key }}"
+                                >
+                                <span style="position: absolute; right: 10px; top: 10px; color: #94a3b8; font-weight: 700;">x</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- LIVE CALCULATOR PREVIEW (5 KM TRIP) -->
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 14px; font-size: 12px;">
+                        <div style="display: flex; justify-content: space-between; color: #64748b; margin-bottom: 3px;">
+                            <span>Example 5.0 km Trip:</span>
+                            <strong style="color: #0f172a; font-family: 'JetBrains Mono', monospace;" id="sample-fare-{{ item.key }}">₹--</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #16a34a;">
+                            <span>RideGo Profit Cut:</span>
+                            <strong style="font-family: 'JetBrains Mono', monospace;" id="sample-profit-{{ item.key }}">₹--</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; color: #2563eb;">
+                            <span>Captain Takes Home:</span>
+                            <strong style="font-family: 'JetBrains Mono', monospace;" id="sample-captain-{{ item.key }}">₹--</strong>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 6px;">
+                        <label style="display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: #475569; cursor: pointer;">
+                            <input type="checkbox" name="is_active" {% if item.plan.is_active %}checked{% endif %} style="width: 16px; height: 16px; accent-color: #10b981;">
+                            Offer in Booking Flow
+                        </label>
+                        <button type="submit" style="padding: 10px 18px; background: #0f172a; color: #ffffff; border: none; border-radius: 10px; font-weight: 800; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s;">
+                            💾 Save Pricing
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+
+    <!-- =========================================================
+         SECTION: BATCH UPDATE ALL PRICING PLANS IN ONE TABLE
+         ========================================================= -->
+    <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 20px; padding: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.04); margin-bottom: 36px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 18px;">
+            <div>
+                <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0;">
+                    ⚡ Batch Rate Adjustment Matrix
+                </h3>
+                <p style="font-size: 12px; color: #64748b; margin: 2px 0 0;">
+                    Quickly calibrate rates and margins simultaneously for all transport categories.
+                </p>
+            </div>
+        </div>
+
+        <form method="POST" action="{% url 'admin_update_pricing' %}">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="batch_update">
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e2e8f0; background: #f8fafc;">
+                            <th style="padding: 12px 14px; font-weight: 800; color: #475569;">Vehicle Tier</th>
+                            <th style="padding: 12px 14px; font-weight: 800; color: #475569;">Base Fare (₹)</th>
+                            <th style="padding: 12px 14px; font-weight: 800; color: #475569;">Per Km Rate (₹)</th>
+                            <th style="padding: 12px 14px; font-weight: 800; color: #475569;">RideGo Margin (%)</th>
+                            <th style="padding: 12px 14px; font-weight: 800; color: #475569;">Live Surge (x)</th>
+                            <th style="padding: 12px 14px; font-weight: 800; color: #475569;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for plan in pricing_plans %}
+                        <tr style="border-bottom: 1px solid #f1f5f9;">
+                            <td style="padding: 12px 14px; font-weight: 800; color: #0f172a;">
+                                <span style="font-size: 18px; margin-right: 6px;">{{ plan.icon }}</span>
+                                {{ plan.name }}
+                            </td>
+                            <td style="padding: 12px 14px;">
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    <span style="color: #94a3b8; font-weight: 700;">₹</span>
+                                    <input
+                                        type="number"
+                                        step="0.5"
+                                        name="base_fare_{{ plan.id }}"
+                                        value="{{ plan.base_fare|floatformat:2 }}"
+                                        style="width: 80px; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace;"
+                                    >
+                                </div>
+                            </td>
+                            <td style="padding: 12px 14px;">
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    <span style="color: #94a3b8; font-weight: 700;">₹</span>
+                                    <input
+                                        type="number"
+                                        step="0.5"
+                                        name="per_km_{{ plan.id }}"
+                                        value="{{ plan.per_km_rate|floatformat:2 }}"
+                                        style="width: 80px; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace;"
+                                    >
+                                </div>
+                            </td>
+                            <td style="padding: 12px 14px;">
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    <input
+                                        type="number"
+                                        step="1"
+                                        min="0"
+                                        max="100"
+                                        name="comm_{{ plan.id }}"
+                                        value="{{ plan.commission_percentage|floatformat:0 }}"
+                                        style="width: 70px; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace;"
+                                    >
+                                    <span style="color: #94a3b8; font-weight: 700;">%</span>
+                                </div>
+                            </td>
+                            <td style="padding: 12px 14px;">
+                                <div style="display: flex; align-items: center; gap: 4px;">
+                                    <input
+                                        type="number"
+                                        step="0.05"
+                                        min="1.0"
+                                        max="5.0"
+                                        name="surge_{{ plan.id }}"
+                                        value="{{ plan.surge_multiplier|floatformat:2 }}"
+                                        style="width: 75px; padding: 6px 8px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; font-weight: 700; font-family: 'JetBrains Mono', monospace;"
+                                    >
+                                    <span style="color: #94a3b8; font-weight: 700;">x</span>
+                                </div>
+                            </td>
+                            <td style="padding: 12px 14px;">
+                                {% if plan.is_active %}
+                                    <span style="color: #15803d; font-weight: 700; font-size: 12px;">● Enabled</span>
+                                {% else %}
+                                    <span style="color: #b91c1c; font-weight: 700; font-size: 12px;">○ Paused</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-top: 18px;">
+                <button type="submit" style="padding: 12px 24px; background: linear-gradient(135deg, #2563eb, #1d4ed8); color: #ffffff; border: none; border-radius: 12px; font-weight: 800; font-size: 13px; cursor: pointer; box-shadow: 0 4px 14px rgba(37,99,235,0.3); display: inline-flex; align-items: center; gap: 8px;">
+                    ⚡ Save All Pricing Changes Live
+                </button>
+            </div>
+        </form>
+    </div>
+
+
+    <!-- =========================================================
+         SECTION: REAL-TIME RIDES & PROFIT LEDGER
+         ========================================================= -->
+    <div style="background: #ffffff; border: 1.5px solid #e2e8f0; border-radius: 20px; padding: 26px; box-shadow: 0 10px 25px rgba(0,0,0,0.04);">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+            <div>
+                <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0;">
+                    📜 Rides & Profit Ledger
+                </h3>
+                <p style="font-size: 12px; color: #64748b; margin: 2px 0 0;">
+                    Transparent breakdown of customer fares, platform take-rates, and captain net earnings.
+                </p>
+            </div>
+
+            <!-- FILTER TABS -->
+            <div style="display: flex; gap: 6px; background: #f1f5f9; padding: 4px; border-radius: 12px;">
+                <a href="?status=all" style="padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 800; text-decoration: none; color: {% if status_filter == 'all' %}#ffffff{% else %}#64748b{% endif %}; background: {% if status_filter == 'all' %}#0f172a{% else %}transparent{% endif %};">
+                    All ({{ total_rides }})
+                </a>
+                <a href="?status=completed" style="padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 800; text-decoration: none; color: {% if status_filter == 'completed' %}#ffffff{% else %}#64748b{% endif %}; background: {% if status_filter == 'completed' %}#10b981{% else %}transparent{% endif %};">
+                    Completed ({{ completed_rides }})
+                </a>
+                <a href="?status=active" style="padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 800; text-decoration: none; color: {% if status_filter == 'active' %}#ffffff{% else %}#64748b{% endif %}; background: {% if status_filter == 'active' %}#0284c7{% else %}transparent{% endif %};">
+                    Active ({{ active_rides }})
+                </a>
+                <a href="?status=cancelled" style="padding: 6px 14px; border-radius: 8px; font-size: 12px; font-weight: 800; text-decoration: none; color: {% if status_filter == 'cancelled' %}#ffffff{% else %}#64748b{% endif %}; background: {% if status_filter == 'cancelled' %}#ef4444{% else %}transparent{% endif %};">
+                    Cancelled ({{ cancelled_rides }})
+                </a>
+            </div>
+        </div>
+
+        <!-- RIDES TABLE -->
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 13px;">
+                <thead>
+                    <tr style="border-bottom: 2px solid #e2e8f0; background: #f8fafc;">
+                        <th style="padding: 12px 14px; font-weight: 800; color: #475569;">Ride</th>
+                        <th style="padding: 12px 14px; font-weight: 800; color: #475569;">Date & Time</th>
+                        <th style="padding: 12px 14px; font-weight: 800; color: #475569;">Passenger</th>
+                        <th style="padding: 12px 14px; font-weight: 800; color: #475569;">Captain</th>
+                        <th style="padding: 12px 14px; font-weight: 800; color: #475569;">Tier & Dist</th>
+                        <th style="padding: 12px 14px; font-weight: 800; color: #475569; text-align: right;">Gross Fare</th>
+                        <th style="padding: 12px 14px; font-weight: 800; color: #16a34a; text-align: right;">RideGo Profit</th>
+                        <th style="padding: 12px 14px; font-weight: 800; color: #2563eb; text-align: right;">Captain Net</th>
+                        <th style="padding: 12px 14px; font-weight: 800; color: #475569; text-align: center;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ride in rides %}
+                    <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.15s ease;" onmouseover="this.style.background='#fbfcfe'" onmouseout="this.style.background='transparent'">
+                        <!-- Ride ID & OTP -->
+                        <td style="padding: 12px 14px; font-weight: 800; color: #0f172a;">
+                            <a href="{% url 'ride_detail' ride.id %}" style="text-decoration: none; color: #2563eb;">
+                                #{{ ride.id }}
+                            </a>
+                            <div style="font-size: 10px; font-family: 'JetBrains Mono', monospace; color: #94a3b8;">
+                                PIN: {{ ride.otp }}
+                            </div>
+                        </td>
+
+                        <!-- Date -->
+                        <td style="padding: 12px 14px; color: #64748b; font-size: 12px;">
+                            {{ ride.created_at|date:"M d, Y" }}
+                            <div style="font-size: 11px; color: #94a3b8;">{{ ride.created_at|time:"h:i A" }}</div>
+                        </td>
+
+                        <!-- Passenger -->
+                        <td style="padding: 12px 14px; font-weight: 700; color: #334155;">
+                            👤 {{ ride.user.username }}
+                            <div style="font-size: 11px; color: #94a3b8; font-weight: 500;">
+                                {{ ride.pickup|truncatechars:18 }} → {{ ride.destination|truncatechars:18 }}
+                            </div>
+                        </td>
+
+                        <!-- Captain -->
+                        <td style="padding: 12px 14px; font-size: 12px;">
+                            {% if ride.driver %}
+                                <span style="font-weight: 800; color: #0f172a;">
+                                    🛵 {{ ride.driver.display_name }}
+                                </span>
+                                <div style="font-size: 10px; color: #16a34a; font-weight: 700;">
+                                    ✓ Permitted ({{ ride.driver.vehicle_number }})
+                                </div>
+                            {% else %}
+                                <span style="color: #94a3b8; font-style: italic;">Auto-assigned / None</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Tier & Distance -->
+                        <td style="padding: 12px 14px;">
+                            <span style="display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; {% if ride.ride_type == 'bike' %}background: #fef3c7; color: #b45309;{% elif ride.ride_type == 'auto' %}background: #dcfce7; color: #15803d;{% else %}background: #dbeafe; color: #1e40af;{% endif %}">
+                                {{ ride.ride_type|upper }}
+                            </span>
+                            <div style="font-size: 11px; color: #64748b; font-weight: 600; margin-top: 2px;">
+                                📍 {{ ride.distance|floatformat:1 }} km
+                                {% if ride.surge_multiplier and ride.surge_multiplier > 1.0 %}
+                                    <span style="color: #d97706; font-weight: 800;">({{ ride.surge_multiplier|floatformat:1 }}x)</span>
+                                {% endif %}
+                            </div>
+                        </td>
+
+                        <!-- Gross Fare -->
+                        <td style="padding: 12px 14px; font-weight: 800; color: #0f172a; text-align: right; font-family: 'JetBrains Mono', monospace;">
+                            ₹{{ ride.estimated_fare|floatformat:2 }}
+                        </td>
+
+                        <!-- Platform Profit -->
+                        <td style="padding: 12px 14px; font-weight: 800; color: #16a34a; text-align: right; font-family: 'JetBrains Mono', monospace;">
+                            {% if ride.status == 'completed' %}
+                                +₹{{ ride.platform_profit|floatformat:2 }}
+                            {% else %}
+                                <span style="color: #94a3b8; font-size: 11px;">(Est: ₹{{ ride.platform_profit|floatformat:2 }})</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Captain Net -->
+                        <td style="padding: 12px 14px; font-weight: 800; color: #2563eb; text-align: right; font-family: 'JetBrains Mono', monospace;">
+                            {% if ride.status == 'completed' %}
+                                ₹{{ ride.captain_earnings|floatformat:2 }}
+                            {% else %}
+                                <span style="color: #94a3b8; font-size: 11px;">₹{{ ride.captain_earnings|floatformat:2 }}</span>
+                            {% endif %}
+                        </td>
+
+                        <!-- Status Pill -->
+                        <td style="padding: 12px 14px; text-align: center;">
+                            {% if ride.status == 'completed' %}
+                                <span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0;">
+                                    ✓ COMPLETED
+                                </span>
+                            {% elif ride.status == 'started' %}
+                                <span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe;">
+                                    🟢 ON TRIP
+                                </span>
+                            {% elif ride.status == 'assigned' or ride.status == 'searching' %}
+                                <span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; background: #fffbeb; color: #b45309; border: 1px solid #fde68a;">
+                                    ⏳ {{ ride.status|upper }}
+                                </span>
+                            {% elif ride.status == 'cancelled' %}
+                                <span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; background: #fef2f2; color: #991b1b; border: 1px solid #fecaca;">
+                                    ✕ CANCELLED
+                                </span>
+                            {% else %}
+                                <span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 800; background: #f1f5f9; color: #475569;">
+                                    {{ ride.status|upper }}
+                                </span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="9" style="text-align: center; padding: 36px; color: #94a3b8;">
+                            No rides found matching this filter criteria.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// Dynamic client-side recalculation preview for 5km trip
+function recalcCardSample(key) {
+    const baseInput = document.getElementById('input-base-' + key);
+    const perkmInput = document.getElementById('input-perkm-' + key);
+    const commInput = document.getElementById('input-comm-' + key);
+    const surgeInput = document.getElementById('input-surge-' + key);
+
+    if (!baseInput || !perkmInput || !commInput || !surgeInput) return;
+
+    const base = parseFloat(baseInput.value) || 0;
+    const perkm = parseFloat(perkmInput.value) || 0;
+    const comm = parseFloat(commInput.value) || 0;
+    const surge = parseFloat(surgeInput.value) || 1.0;
+
+    // 5 km trip calculation
+    const rawFare = (base + (5.0 * perkm)) * surge;
+    const totalFare = Math.max(base, Math.round(rawFare));
+    const profit = Math.round((totalFare * (comm / 100)) * 100) / 100;
+    const captain = Math.round((totalFare - profit) * 100) / 100;
+
+    const fareEl = document.getElementById('sample-fare-' + key);
+    const profitEl = document.getElementById('sample-profit-' + key);
+    const captainEl = document.getElementById('sample-captain-' + key);
+
+    if (fareEl) fareEl.innerText = '₹' + totalFare;
+    if (profitEl) profitEl.innerText = '₹' + profit.toFixed(2);
+    if (captainEl) captainEl.innerText = '₹' + captain.toFixed(2);
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    ['bike', 'auto', 'cab'].forEach(recalcCardSample);
+});
+</script>
+{% endblock %}

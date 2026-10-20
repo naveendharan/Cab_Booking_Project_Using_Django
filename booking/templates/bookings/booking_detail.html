@@ -1,0 +1,141 @@
+{% extends "booking/base.html" %}
+
+{% block title %}Ride #{{ ride.id }} Details - RideGo{% endblock %}
+
+{% block content %}
+<div class="detail-page">
+    <div class="detail-container">
+        <div class="detail-card">
+            <!-- TITLE & STATUS -->
+            <div class="detail-title">
+                <div>
+                    <span class="hero-label" style="font-size: 10px;">TRIP INVOICE & STATUS</span>
+                    <h1>Ride #{{ ride.id }}</h1>
+                    <p style="color: #777; font-size: 13px; margin-top: 4px;">
+                        Booked on {{ ride.created_at|date:"d M Y, h:i A" }}
+                    </p>
+                </div>
+
+                <div>
+                    <span class="status-badge status-{{ ride.status }}" style="font-size: 12px; padding: 7px 14px;">
+                        {{ ride.get_status_display }}
+                    </span>
+                </div>
+            </div>
+
+            <!-- ROUTE SUMMARY -->
+            <div class="detail-section">
+                <h3>Trip Route</h3>
+                <div class="detail-box">
+                    <div class="detail-row">
+                        <span>Pickup Location</span>
+                        <strong>🟢 {{ ride.pickup }}</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Drop Destination</span>
+                        <strong>📍 {{ ride.destination }}</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Total Distance</span>
+                        <strong>{{ ride.distance }} km</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Vehicle Type</span>
+                        <strong>{{ ride.icon }} {{ ride.get_ride_type_display }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CAPTAIN DETAILS -->
+            {% if ride.driver %}
+            <div class="detail-section">
+                <h3>Captain Details</h3>
+                <div class="detail-box">
+                    <div class="detail-row">
+                        <span>Captain Name</span>
+                        <strong>{{ ride.driver.display_name }} (★ {{ ride.driver.rating }})</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Vehicle Model</span>
+                        <strong>{{ ride.driver.vehicle_model }}</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Vehicle Plate Number</span>
+                        <strong><span style="background: #fff; border: 1px solid #ccc; padding: 2px 6px; border-radius: 4px; font-family: monospace;">{{ ride.driver.vehicle_number }}</span></strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Contact Number</span>
+                        <strong>{{ ride.driver.phone }}</strong>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- FARE & PAYMENT -->
+            <div class="detail-section">
+                <h3>Fare Breakdown</h3>
+                <div class="detail-box">
+                    <div class="detail-row">
+                        <span>Payment Mode</span>
+                        <strong style="text-transform: capitalize;">{{ ride.payment_method }}</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Payment Status</span>
+                        <strong>{{ ride.payment_status }}</strong>
+                    </div>
+                    <div class="detail-row">
+                        <span>Estimated Fare</span>
+                        <strong style="font-size: 18px; color: #171717;">₹{{ ride.estimated_fare|floatformat:0 }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OTP (if active) -->
+            {% if ride.status == "searching" or ride.status == "assigned" %}
+            <div style="background: #171717; color: #fff; border-radius: 14px; padding: 18px; text-align: center; margin: 24px 0;">
+                <span style="font-size: 11px; letter-spacing: 2px; color: #f9d949; text-transform: uppercase;">
+                    START PIN (OTP)
+                </span>
+                <div style="font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #f9d949; margin: 4px 0; font-family: monospace;">
+                    {{ ride.otp }}
+                </div>
+                <div style="font-size: 11px; color: #aaa;">
+                    Share this code with your Captain upon boarding
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- ACTIONS -->
+            <div style="display: flex; flex-wrap: wrap; gap: 12px; margin-top: 24px;">
+                {% if ride.status == "assigned" %}
+                    <a href="{% url 'driver_assigned' ride.id %}" class="primary-btn" style="flex: 1; text-align: center; text-decoration: none;">
+                        View Captain Tracker →
+                    </a>
+                    <a href="{% url 'cancel_ride' ride.id %}" onclick="return confirm('Cancel this ride?');" class="secondary-btn" style="color: #b32323;">
+                        Cancel Ride
+                    </a>
+                {% elif ride.status == "started" %}
+                    <a href="{% url 'start_ride' ride.id %}" class="primary-btn" style="flex: 1; text-align: center; text-decoration: none;">
+                        View Live Transit Screen →
+                    </a>
+                {% elif ride.status == "searching" %}
+                    <a href="{% url 'searching_driver' ride.id %}" class="primary-btn" style="flex: 1; text-align: center; text-decoration: none;">
+                        Back to Search →
+                    </a>
+                    <a href="{% url 'cancel_ride' ride.id %}" class="secondary-btn" style="color: #b32323;">
+                        Cancel Ride
+                    </a>
+                {% else %}
+                    <a href="{% url 'home' %}" class="primary-btn" style="flex: 1; text-align: center; text-decoration: none;">
+                        Book New Ride →
+                    </a>
+                {% endif %}
+
+                <a href="{% url 'my_rides' %}" class="secondary-btn" style="text-decoration: none;">
+                    ← Back to My Rides
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

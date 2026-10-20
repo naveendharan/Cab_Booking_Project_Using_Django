@@ -1,0 +1,284 @@
+{% extends "booking/base.html" %}
+
+{% block title %}RideGo - Fastest Bike Taxi, Auto & Cab Booking{% endblock %}
+
+{% block content %}
+
+<!-- HERO / DUAL-DEVICE BOOKING SECTION -->
+<section class="hero">
+    <!-- LEFT COLUMN: BOOKING CARD & PITCH -->
+    <div class="hero-content">
+        <span class="hero-label">URBAN MOBILITY • RAPID & SAFE</span>
+        <h1>
+            Beat traffic.<br>
+            <span>Ride smart.</span>
+        </h1>
+        <p>
+            India’s favorite daily commute model. Hop on a verified Bike Captain, hail a doorstep Auto, or book a cozy Cab at unbeatable low fares.
+        </p>
+
+        <!-- BOOKING CARD / MOBILE BOTTOM SHEET -->
+        <div class="booking-wrapper" id="booking-card-anchor" style="margin-top: 24px;">
+            <div class="booking-card">
+                <!-- Mobile grab handle bar -->
+                <div class="sheet-handle"></div>
+
+                <div class="booking-card-header">
+                    <span class="hero-label" style="font-size: 10px;">INSTANT BOOKING</span>
+                    <h2>Where to today?</h2>
+                    <p>Enter your route to check live estimated fares.</p>
+                </div>
+
+                <form method="POST" action="{% url 'select_ride' %}" id="ride-booking-form">
+                    {% csrf_token %}
+
+                    <div class="location-group">
+                        <div class="location-field">
+                            <span class="location-icon pickup-icon">🟢</span>
+                            <input
+                                type="text"
+                                name="pickup"
+                                id="pickup"
+                                placeholder="Pickup location (e.g. Indiranagar Metro)"
+                                value="Indiranagar 100ft Road"
+                                required
+                            >
+                        </div>
+
+                        <div class="route-line"></div>
+
+                        <div class="location-field">
+                            <span class="location-icon destination-icon">📍</span>
+                            <input
+                                type="text"
+                                name="destination"
+                                id="destination"
+                                placeholder="Destination (e.g. Koramangala 5th Block)"
+                                value="Koramangala Sony Signal"
+                                required
+                            >
+                        </div>
+                    </div>
+
+                    <!-- Quick Location Chips (Horizontal scrollable on mobile) -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 8px;">
+                            Popular destinations:
+                        </div>
+                        <div class="mobile-chips-scroll" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                            {% for place in popular_places %}
+                            <button
+                                type="button"
+                                onclick="setDestination('{{ place }}')"
+                                style="background: #f4f4f0; border: 1px solid #e2e2dc; border-radius: 20px; padding: 6px 12px; font-size: 11px; font-weight: 600; cursor: pointer; color: #333; flex-shrink: 0;"
+                            >
+                                + {{ place }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <button type="submit" class="find-btn" id="find-ride-btn">
+                        Find Available Rides →
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div style="margin-top: 24px; display: flex; align-items: center; gap: 20px; font-size: 13px; color: #666; flex-wrap: wrap;">
+            <div>⚡ <strong>2-3 min</strong> Avg Pickup</div>
+            <div>🛡️ <strong>4-Digit PIN</strong> Verified</div>
+            <div>💰 <strong>Starting at ₹30</strong></div>
+        </div>
+    </div>
+
+    <!-- RIGHT COLUMN: INTERACTIVE LIVE GPS CITY MAP SIMULATOR -->
+    <div style="padding: 20px; width: 100%;">
+        <div class="city-map-container" id="interactive-map">
+            <div class="map-grid-bg"></div>
+
+            <!-- Stylized City Roads SVG -->
+            <svg class="map-roads-svg" viewBox="0 0 500 380" preserveAspectRatio="none">
+                <!-- Roads -->
+                <path d="M 0 120 Q 200 130 500 110" stroke="#d5d8d0" stroke-width="18" fill="none" />
+                <path d="M 120 0 Q 140 200 130 380" stroke="#d5d8d0" stroke-width="20" fill="none" />
+                <path d="M 0 260 C 180 250, 320 280, 500 240" stroke="#d5d8d0" stroke-width="16" fill="none" />
+                <path d="M 360 0 Q 370 200 380 380" stroke="#d5d8d0" stroke-width="18" fill="none" />
+                <path d="M 40 380 L 460 30" stroke="#e0e4dc" stroke-width="14" fill="none" />
+
+                <!-- Active Trip Route line (Green to Red) -->
+                <path d="M 140 182 Q 260 210 410 209" stroke="#171717" stroke-dasharray="6,6" stroke-width="4" fill="none" />
+            </svg>
+
+            <!-- Pulsing radar around pickup point -->
+            <div class="map-radar-pulse"></div>
+
+            <!-- Route markers -->
+            <div class="map-route-marker marker-pickup" title="Pickup: Indiranagar">
+                🟢
+            </div>
+            <div class="map-route-marker marker-drop" title="Drop: Koramangala">
+                📍
+            </div>
+
+            <!-- Moving Live Captain Pins -->
+            <div class="captain-pin pin-bike" onclick="selectQuickRideType('bike')" title="Rajesh Kumar - Bike Captain">
+                <span>🏍️</span>
+                <span>Rajesh (2m)</span>
+            </div>
+
+            <div class="captain-pin pin-auto" onclick="selectQuickRideType('auto')" title="Ramesh Gowda - Auto Rickshaw">
+                <span>🛺</span>
+                <span>Ramesh (3m)</span>
+            </div>
+
+            <div class="captain-pin pin-cab" onclick="selectQuickRideType('cab')" title="Suresh Patel - Cab Economy">
+                <span>🚕</span>
+                <span>Suresh (5m)</span>
+            </div>
+
+            <!-- Live Status Badge -->
+            <div class="map-badge-status">
+                <span class="pulse-dot-green"></span>
+                <span>Live GPS • 8 Captains nearby</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SERVICES SECTION -->
+<section class="section" id="services" style="background: #fafaf7;">
+    <div class="section-heading">
+        <span class="section-label">OUR RIDE OPTIONS</span>
+        <h2>Made for every commute</h2>
+        <p>Whether you need to zoom past rush-hour jams or relax in an AC cab, we've got you covered.</p>
+    </div>
+
+    <div class="ride-types">
+        <!-- BIKE CAPTAIN -->
+        <div class="ride-card" onclick="document.getElementById('pickup').focus();" style="cursor: pointer;">
+            <div class="ride-icon">🏍️</div>
+            <div>
+                <span class="status-badge status-searching" style="font-size: 9px; margin-bottom: 4px;">FASTEST</span>
+                <h3>Bike Captain</h3>
+                <p>Single rider with safety helmet. Bypasses traffic bottlenecks effortlessly.</p>
+                <div style="margin-top: 8px; font-size: 13px; font-weight: 800; color: #171717;">
+                    Fares from ₹30 + ₹8/km
+                </div>
+            </div>
+            <div class="ride-arrow">→</div>
+        </div>
+
+        <!-- AUTO RICKSHAW -->
+        <div class="ride-card" onclick="document.getElementById('pickup').focus();" style="cursor: pointer;">
+            <div class="ride-icon">🛺</div>
+            <div>
+                <span class="status-badge status-assigned" style="font-size: 9px; margin-bottom: 4px;">POPULAR</span>
+                <h3>Auto Rickshaw</h3>
+                <p>Comfortable doorstep 3-wheelers for up to 3 people. Transparent meter-free fare.</p>
+                <div style="margin-top: 8px; font-size: 13px; font-weight: 800; color: #171717;">
+                    Fares from ₹40 + ₹12/km
+                </div>
+            </div>
+            <div class="ride-arrow">→</div>
+        </div>
+
+        <!-- CAB ECONOMY -->
+        <div class="ride-card" onclick="document.getElementById('pickup').focus();" style="cursor: pointer;">
+            <div class="ride-icon">🚕</div>
+            <div>
+                <span class="status-badge status-completed" style="font-size: 9px; margin-bottom: 4px;">COMFORT</span>
+                <h3>Cab Economy</h3>
+                <p>Air-conditioned private compact cars for comfortable travel in all weather.</p>
+                <div style="margin-top: 8px; font-size: 13px; font-weight: 800; color: #171717;">
+                    Fares from ₹70 + ₹18/km
+                </div>
+            </div>
+            <div class="ride-arrow">→</div>
+        </div>
+    </div>
+</section>
+
+<!-- FEATURES SECTION -->
+<section class="section" id="safety">
+    <div class="section-heading">
+        <span class="section-label">THE RIDEGO PROMISE</span>
+        <h2>Why millions choose us</h2>
+        <p>Engineered for speed, built on trust and passenger protection.</p>
+    </div>
+
+    <div class="features">
+        <div class="feature-card">
+            <div class="feature-number">01</div>
+            <h3>4-Digit Start OTP</h3>
+            <p>Your ride only commences once your Captain verifies the unique 4-digit PIN generated exclusively on your screen.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-number">02</div>
+            <h3>Verified Captains</h3>
+            <p>Every bike, auto, and cab partner is background-checked with full vehicle fitness verification and driving history.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-number">03</div>
+            <h3>Zero Hidden Charges</h3>
+            <p>Upfront calculated pricing so you know exactly what you will pay before you confirm your ride. No meter surprises.</p>
+        </div>
+    </div>
+</section>
+
+<!-- PROMO SECTION -->
+<section class="promo-section">
+    <div class="promo-card">
+        <div>
+            <span class="hero-label" style="color: var(--yellow);">EXCLUSIVE OFFER</span>
+            <h2>Get 20% OFF with RAPID20</h2>
+            <p>Use coupon code <strong>RAPID20</strong> on your first ride to enjoy instant discount on your fare.</p>
+        </div>
+        <button
+            type="button"
+            class="primary-btn"
+            onclick="copyCoupon()"
+            style="border: none; white-space: nowrap;"
+        >
+            📋 Copy Coupon Code
+        </button>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function setDestination(place) {
+    const destInput = document.getElementById('destination');
+    if (destInput) {
+        destInput.value = place;
+        destInput.focus();
+    }
+}
+
+function selectQuickRideType(type) {
+    const pickup = document.getElementById('pickup').value;
+    const dest = document.getElementById('destination').value;
+    if (pickup && dest) {
+        document.getElementById('ride-booking-form').submit();
+    } else {
+        alert("Please confirm pickup and destination first!");
+    }
+}
+
+function copyCoupon() {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText("RAPID20").then(() => {
+            alert("🎉 Coupon code RAPID20 copied to clipboard!");
+        }).catch(() => {
+            alert("Coupon code: RAPID20");
+        });
+    } else {
+        alert("Coupon code: RAPID20");
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,95 @@
+{% extends "booking/base.html" %}
+
+{% block title %}Create Account - RideGo{% endblock %}
+
+{% block content %}
+<div class="auth-page">
+    <!-- LEFT BRAND PANEL -->
+    <div class="auth-left">
+        <span class="hero-label">JOIN RIDEGO</span>
+        <h1>
+            Join millions of<br>
+            <span>smart commuters.</span>
+        </h1>
+        <p>
+            Sign up in 30 seconds. Get ₹50 welcome discount on your first 3 rides with code RAPID20.
+        </p>
+
+        <div style="margin-top: 36px; display: flex; flex-direction: column; gap: 14px; font-size: 14px; color: #ddd;">
+            <div>🛵 <strong>Bike Taxis</strong> - Skip all traffic jams</div>
+            <div>🛺 <strong>Autos</strong> - Guaranteed meter-free flat fares</div>
+            <div>🚕 <strong>Cabs</strong> - AC comfort for rain or sun</div>
+        </div>
+    </div>
+
+    <!-- RIGHT FORM PANEL -->
+    <div class="auth-right">
+        <div class="auth-card">
+            <h2>Create Account</h2>
+            <p>Fill in your details to start booking rides instantly.</p>
+
+            <form method="POST" action="{% url 'register' %}">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="reg-username">Username</label>
+                    <input
+                        type="text"
+                        name="username"
+                        id="reg-username"
+                        class="form-control"
+                        placeholder="Choose a username"
+                        required
+                        autofocus
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-email">Email Address</label>
+                    <input
+                        type="email"
+                        name="email"
+                        id="reg-email"
+                        class="form-control"
+                        placeholder="name@example.com"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-pass1">Password</label>
+                    <input
+                        type="password"
+                        name="password1"
+                        id="reg-pass1"
+                        class="form-control"
+                        placeholder="Create strong password"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="reg-pass2">Confirm Password</label>
+                    <input
+                        type="password"
+                        name="password2"
+                        id="reg-pass2"
+                        class="form-control"
+                        placeholder="Repeat password"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="find-btn form-submit" id="register-submit-btn">
+                    Create Account & Ride →
+                </button>
+            </form>
+
+            <p class="auth-bottom">
+                Already registered?
+                <a href="{% url 'login' %}">Log in here</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

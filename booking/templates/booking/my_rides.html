@@ -1,0 +1,103 @@
+{% extends "booking/base.html" %}
+
+{% block title %}My Rides - RideGo{% endblock %}
+
+{% block content %}
+<div class="rides-page">
+    <div class="rides-container">
+        <div class="rides-header">
+            <span class="section-label">RIDE HISTORY & ACTIVITY</span>
+            <h1>My Rides</h1>
+            <p>Track all your ongoing, completed, and past journeys.</p>
+
+            <!-- FILTER TABS -->
+            <div style="display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap;">
+                <a
+                    href="{% url 'my_rides' %}?filter=all"
+                    style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid #deded8; background: {% if current_filter == 'all' %}#171717{% else %}#fff{% endif %}; color: {% if current_filter == 'all' %}#fff{% else %}#444{% endif %};"
+                >
+                    All Rides
+                </a>
+                <a
+                    href="{% url 'my_rides' %}?filter=assigned"
+                    style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid #deded8; background: {% if current_filter == 'assigned' %}#171717{% else %}#fff{% endif %}; color: {% if current_filter == 'assigned' %}#fff{% else %}#444{% endif %};"
+                >
+                    Assigned
+                </a>
+                <a
+                    href="{% url 'my_rides' %}?filter=started"
+                    style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid #deded8; background: {% if current_filter == 'started' %}#171717{% else %}#fff{% endif %}; color: {% if current_filter == 'started' %}#fff{% else %}#444{% endif %};"
+                >
+                    In Progress
+                </a>
+                <a
+                    href="{% url 'my_rides' %}?filter=completed"
+                    style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid #deded8; background: {% if current_filter == 'completed' %}#171717{% else %}#fff{% endif %}; color: {% if current_filter == 'completed' %}#fff{% else %}#444{% endif %};"
+                >
+                    Completed
+                </a>
+                <a
+                    href="{% url 'my_rides' %}?filter=cancelled"
+                    style="padding: 7px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; text-decoration: none; border: 1px solid #deded8; background: {% if current_filter == 'cancelled' %}#171717{% else %}#fff{% endif %}; color: {% if current_filter == 'cancelled' %}#fff{% else %}#444{% endif %};"
+                >
+                    Cancelled
+                </a>
+            </div>
+        </div>
+
+        {% if rides %}
+        <div class="ride-history">
+            {% for ride in rides %}
+            <div class="history-card">
+                <div class="history-icon">
+                    {{ ride.icon }}
+                </div>
+
+                <div class="history-info">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <h3>{{ ride.get_ride_type_display }} #{{ ride.id }}</h3>
+                        {% if ride.driver %}
+                        <span style="font-size: 12px; color: #666;">
+                            • Captain {{ ride.driver.display_name }}
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <div class="history-route">
+                        <strong>🟢 {{ ride.pickup }}</strong> → <strong>📍 {{ ride.destination }}</strong>
+                    </div>
+
+                    <div class="history-date">
+                        🗓️ {{ ride.created_at|date:"d M Y, h:i A" }} • {{ ride.distance }} km • {{ ride.payment_method|upper }}
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px;">
+                    <div class="history-price">
+                        ₹{{ ride.estimated_fare|floatformat:0 }}
+                    </div>
+
+                    <span class="status-badge status-{{ ride.status }}">
+                        {{ ride.get_status_display }}
+                    </span>
+
+                    <a href="{% url 'ride_detail' ride.id %}" style="font-size: 12px; color: #171717; font-weight: 700; text-decoration: underline; margin-top: 4px;">
+                        View Receipt →
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">🚕</div>
+            <h3>No rides found</h3>
+            <p>You haven't taken any trips matching this filter yet.</p>
+            <a href="{% url 'home' %}" class="primary-btn" style="display: inline-block; text-decoration: none;">
+                Book a Ride Now →
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

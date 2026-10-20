@@ -1,0 +1,218 @@
+{% extends "booking/base.html" %}
+
+{% block title %}Ride in Progress - RideGo{% endblock %}
+
+{% block content %}
+<div class="driver-page" style="padding: 30px 16px;">
+    <div class="driver-container" style="max-width: 650px; margin: 0 auto;">
+        <div class="driver-card" style="background: #ffffff; border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; overflow: hidden;">
+            
+            <div class="confirm-header" style="background: #171717; color: #fff; text-align: center; padding: 26px 30px;">
+                <span class="status-badge status-started" style="margin-bottom: 8px; background: #2563eb; color: #fff; font-weight: 800;">
+                    LIVE • IN TRANSIT
+                </span>
+                <h2 style="color: #fff; margin: 6px 0 2px; font-size: 22px;">On the way to your destination</h2>
+                <p style="color: #cbd5e1; font-size: 13px; margin: 0;">Wear your helmet / seatbelt for a safe and smooth commute.</p>
+            </div>
+
+            <div style="padding: 24px 30px;">
+                
+                <!-- REAL INTERACTIVE LEAFLET TURN-BY-TURN MAP -->
+                <div style="margin-bottom: 24px; border-radius: 18px; overflow: hidden; border: 1.5px solid #e2e8f0; position: relative; height: 320px; box-shadow: 0 8px 25px rgba(0,0,0,0.06);">
+                    <div id="transit-map" style="width: 100%; height: 100%;"></div>
+                    <div class="real-map-badge" style="font-size: 10px; padding: 4px 10px; top: 10px; right: 10px;">
+                        <span class="live-dot"></span>
+                        LIVE OSRM NAVIGATION
+                    </div>
+
+                    <!-- Live speed HUD overlay -->
+                    <div style="position: absolute; bottom: 14px; left: 14px; z-index: 25; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px); padding: 6px 14px; border-radius: 20px; color: #ffffff; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                        <span style="color: #f59e0b;">⚡ Speed:</span>
+                        <span id="speed-indicator">38</span> km/h
+                    </div>
+                </div>
+
+                <!-- LIVE STATS STRIP -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; text-align: center;">
+                    <div style="padding: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px;">
+                        <small style="font-size: 10px; color: #64748b; font-weight: 800; display: block; text-transform: uppercase;">DISTANCE LEFT</small>
+                        <strong style="font-size: 18px; color: #0f172a;" id="dist-left">1.8 km</strong>
+                    </div>
+
+                    <div style="padding: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px;">
+                        <small style="font-size: 10px; color: #64748b; font-weight: 800; display: block; text-transform: uppercase;">ETA</small>
+                        <strong style="font-size: 18px; color: #2563eb;" id="eta-left">4 mins</strong>
+                    </div>
+
+                    <div style="padding: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px;">
+                        <small style="font-size: 10px; color: #64748b; font-weight: 800; display: block; text-transform: uppercase;">FARE</small>
+                        <strong style="font-size: 18px; color: #10b981;">₹{{ ride.estimated_fare|floatformat:0 }}</strong>
+                    </div>
+                </div>
+
+                <!-- CAPTAIN INFO STRIP -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 14px; margin-bottom: 20px;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="font-size: 26px;">
+                            {{ ride.icon }}
+                        </div>
+                        <div>
+                            <strong style="font-size: 14px; color: #0f172a; display: block;">
+                                Captain {{ ride.driver.display_name }} (★ {{ ride.driver.rating }})
+                            </strong>
+                            <span style="font-size: 12px; color: #64748b;">
+                                {{ ride.driver.vehicle_model }} • {{ ride.driver.vehicle_number }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <a href="tel:{{ ride.driver.phone }}" class="secondary-btn" style="padding: 8px 12px; font-size: 12px; border-radius: 8px;">
+                        📞 Contact
+                    </a>
+                </div>
+
+                <!-- SAFETY ACTIONS -->
+                <div style="display: flex; gap: 12px; margin-bottom: 22px;">
+                    <button
+                        type="button"
+                        onclick="triggerSos()"
+                        style="flex: 1; min-height: 44px; background: #fef2f2; border: 1px solid #fecaca; color: #ef4444; border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer;"
+                    >
+                        🚨 Emergency SOS
+                    </button>
+                    <button
+                        type="button"
+                        onclick="shareTrip()"
+                        style="flex: 1; min-height: 44px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; border-radius: 12px; font-weight: 700; font-size: 13px; cursor: pointer;"
+                    >
+                        📲 Share Live Trip
+                    </button>
+                </div>
+
+                <!-- COMPLETE RIDE ACTION -->
+                <div>
+                    <a
+                        href="{% url 'complete_ride' ride.id %}"
+                        class="find-btn"
+                        id="complete-ride-btn"
+                        style="text-align: center; display: block; text-decoration: none; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 15px;"
+                    >
+                        Arrived at Destination • Complete Ride ✓
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const pLat = {{ ride.pickup_lat|default:"12.9784" }};
+    const pLng = {{ ride.pickup_lng|default:"77.6408" }};
+    const dLat = {{ ride.destination_lat|default:"12.9352" }};
+    const dLng = {{ ride.destination_lng|default:"77.6245" }};
+
+    const transitMap = L.map('transit-map', {
+        zoomControl: true,
+        scrollWheelZoom: false
+    }).setView([(pLat + dLat)/2, (pLng + dLng)/2], 13);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(transitMap);
+
+    const pickupIcon = L.divIcon({
+        className: 'pickup-transit-pin',
+        html: '<div class="pickup-map-marker">🟢</div>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+    });
+    L.marker([pLat, pLng], { icon: pickupIcon }).addTo(transitMap).bindPopup("Pickup: {{ ride.pickup|escapejs }}");
+
+    const dropIcon = L.divIcon({
+        className: 'drop-transit-pin',
+        html: '<div class="drop-map-marker">📍</div>',
+        iconSize: [30, 30],
+        iconAnchor: [15, 15]
+    });
+    L.marker([dLat, dLng], { icon: dropIcon }).addTo(transitMap).bindPopup("Destination: {{ ride.destination|escapejs }}").openPopup();
+
+    const vehicleIcon = L.divIcon({
+        className: 'vehicle-transit-pin',
+        html: `<div class="vehicle-map-marker" style="width:38px; height:38px; font-size:18px; border-color:#2563eb;">
+                {{ ride.icon }}
+               </div>`,
+        iconSize: [38, 38],
+        iconAnchor: [19, 19]
+    });
+
+    const activeVehicle = L.marker([pLat, pLng], { icon: vehicleIcon }).addTo(transitMap);
+
+    // Fetch real road route geometry from OSRM
+    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pLng},${pLat};${dLng},${dLat}?overview=full&geometries=geojson`;
+
+    fetch(osrmUrl)
+        .then(res => res.json())
+        .then(data => {
+            if (data.routes && data.routes.length > 0) {
+                const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+                const line = L.polyline(coords, {
+                    color: '#2563eb',
+                    weight: 5,
+                    opacity: 0.9,
+                    dashArray: '6, 6'
+                }).addTo(transitMap);
+
+                transitMap.fitBounds(line.getBounds(), { padding: [40, 40] });
+
+                // Animate vehicle along road coordinates
+                let idx = 0;
+                const totalSteps = coords.length;
+                const stepTimer = setInterval(() => {
+                    idx = (idx + 1) % totalSteps;
+                    activeVehicle.setLatLng(coords[idx]);
+
+                    // Update distance left and eta
+                    const progress = idx / totalSteps;
+                    const totalKm = {{ ride.distance }};
+                    const distLeft = Math.max(0.1, totalKm * (1 - progress));
+                    const etaMins = Math.max(1, Math.round(distLeft * 2.2));
+
+                    const distEl = document.getElementById('dist-left');
+                    const etaEl = document.getElementById('eta-left');
+                    if (distEl) distEl.innerText = distLeft.toFixed(1) + ' km';
+                    if (etaEl) etaEl.innerText = etaMins + ' mins';
+                }, 1400);
+            }
+        })
+        .catch(() => {
+            const fallbackLine = L.polyline([[pLat, pLng], [dLat, dLng]], {
+                color: '#2563eb',
+                weight: 4,
+                dashArray: '6, 6'
+            }).addTo(transitMap);
+            transitMap.fitBounds(fallbackLine.getBounds(), { padding: [40, 40] });
+        });
+});
+
+function triggerSos() {
+    alert("🚨 Emergency SOS Triggered! Connecting to 24/7 Police Helpline (112) and RideGo Safety Response Team.");
+}
+
+function shareTrip() {
+    const url = window.location.href;
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => {
+            alert("✓ Live tracking link copied to clipboard! You can share with friends and family.");
+        });
+    } else {
+        alert("Trip link: " + url);
+    }
+}
+</script>
+{% endblock %}

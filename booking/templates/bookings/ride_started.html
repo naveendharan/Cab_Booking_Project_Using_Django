@@ -1,0 +1,150 @@
+{% extends "booking/base.html" %}
+
+{% block title %}Ride in Progress - RideGo{% endblock %}
+
+{% block content %}
+<div class="driver-page">
+    <div class="driver-container">
+        <div class="driver-card">
+            <div class="confirm-header" style="background: #171717; color: #fff; text-align: center; padding: 30px;">
+                <span class="status-badge status-started" style="margin-bottom: 10px; background: #2457a7; color: #fff;">
+                    LIVE • IN TRANSIT
+                </span>
+                <h2 style="color: #fff; margin-top: 5px;">On the way to your destination</h2>
+                <p style="color: #bbb;">Wear your helmet / seatbelt for a safe and smooth ride.</p>
+            </div>
+
+            <div style="padding: 28px 30px;">
+                <!-- LIVE ANIMATED ROUTE TRACKER -->
+                <div style="background: #fafaf7; border: 1px solid #e5e5df; border-radius: 16px; padding: 22px; margin-bottom: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; font-size: 13px;">
+                        <span style="color: #666;">Route Progress:</span>
+                        <strong style="color: #16854a;" id="progress-percent">65% Completed</strong>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div style="position: relative; height: 12px; background: #e0e0da; border-radius: 10px; overflow: hidden; margin-bottom: 16px;">
+                        <div id="route-bar" style="height: 100%; width: 65%; background: linear-gradient(90deg, #f9d949, #171717); border-radius: 10px; transition: width 1s linear;"></div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #555;">
+                        <div>
+                            🟢 <strong>{{ ride.pickup }}</strong>
+                        </div>
+                        <div style="text-align: center; background: #fff; border: 1px solid #ddd; padding: 3px 10px; border-radius: 20px;">
+                            ⚡ ~<span id="speed-indicator">38</span> km/h
+                        </div>
+                        <div>
+                            📍 <strong>{{ ride.destination }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LIVE STATS -->
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; text-align: center;">
+                    <div style="padding: 14px; background: #fcfcfa; border: 1px solid #ecece7; border-radius: 12px;">
+                        <small style="font-size: 10px; color: #888; font-weight: 800; display: block;">DISTANCE LEFT</small>
+                        <strong style="font-size: 16px; color: #171717;" id="dist-left">1.8 km</strong>
+                    </div>
+
+                    <div style="padding: 14px; background: #fcfcfa; border: 1px solid #ecece7; border-radius: 12px;">
+                        <small style="font-size: 10px; color: #888; font-weight: 800; display: block;">ETA</small>
+                        <strong style="font-size: 16px; color: #171717;" id="eta-left">4 mins</strong>
+                    </div>
+
+                    <div style="padding: 14px; background: #fcfcfa; border: 1px solid #ecece7; border-radius: 12px;">
+                        <small style="font-size: 10px; color: #888; font-weight: 800; display: block;">FARE</small>
+                        <strong style="font-size: 16px; color: #171717;">₹{{ ride.estimated_fare|floatformat:0 }}</strong>
+                    </div>
+                </div>
+
+                <!-- CAPTAIN INFO -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: #fff8d8; border-radius: 14px; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <div style="font-size: 28px;">
+                            {{ ride.icon }}
+                        </div>
+                        <div>
+                            <strong style="font-size: 15px; color: #171717; display: block;">
+                                {{ ride.driver.display_name }} (Captain)
+                            </strong>
+                            <span style="font-size: 12px; color: #555;">
+                                {{ ride.driver.vehicle_model }} • {{ ride.driver.vehicle_number }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <a href="tel:{{ ride.driver.phone }}" class="secondary-btn" style="padding: 8px 12px; font-size: 12px;">
+                        📞 Contact
+                    </a>
+                </div>
+
+                <!-- SAFETY SOS BUTTON -->
+                <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+                    <button
+                        type="button"
+                        onclick="triggerSos()"
+                        style="flex: 1; min-height: 44px; background: #fff1f1; border: 1px solid #f5c2c2; color: #c52424; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;"
+                    >
+                        🚨 Emergency SOS
+                    </button>
+                    <button
+                        type="button"
+                        onclick="shareTrip()"
+                        style="flex: 1; min-height: 44px; background: #f0f7ff; border: 1px solid #c7ddfc; color: #1c5ab4; border-radius: 10px; font-weight: 700; font-size: 13px; cursor: pointer;"
+                    >
+                        📲 Share Live Trip
+                    </button>
+                </div>
+
+                <!-- COMPLETE RIDE ACTION -->
+                <div>
+                    <a
+                        href="{% url 'complete_ride' ride.id %}"
+                        class="find-btn"
+                        id="complete-ride-btn"
+                        style="text-align: center; display: block; text-decoration: none;"
+                    >
+                        Arrived at Destination • Complete Ride ✓
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function triggerSos() {
+    alert("🚨 Emergency SOS Triggered! Connecting to 24/7 Police Helpline (112) and RideGo Safety Response Team.");
+}
+
+function shareTrip() {
+    const url = window.location.href;
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => {
+            alert("Live tracking link copied to clipboard! You can share with friends and family.");
+        });
+    } else {
+        alert("Trip link: " + url);
+    }
+}
+
+// Subtle live simulation for ETA and distance
+let pct = 65;
+setInterval(() => {
+    if (pct < 98) {
+        pct += 2;
+        const bar = document.getElementById('route-bar');
+        const txt = document.getElementById('progress-percent');
+        const dist = document.getElementById('dist-left');
+        const eta = document.getElementById('eta-left');
+        if (bar) bar.style.width = pct + '%';
+        if (txt) txt.innerText = pct + '% Completed';
+        if (dist) dist.innerText = Math.max(0.2, (2.0 * (100 - pct) / 35)).toFixed(1) + ' km';
+        if (eta) eta.innerText = Math.max(1, Math.round(5 * (100 - pct) / 35)) + ' mins';
+    }
+}, 3000);
+</script>
+{% endblock %}

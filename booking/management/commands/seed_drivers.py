@@ -1,0 +1,197 @@
+from django.core.management.base import BaseCommand
+from django.contrib.auth.models import User
+from booking.models import Driver
+from decimal import Decimal
+
+
+class Command(BaseCommand):
+    help = "Seed realistic Rapido-style Captains / Drivers for Bike, Auto, and Cab"
+
+    def handle(self, *args, **options):
+        captains = [
+            {
+                "username": "captain_rajesh",
+                "name": "Rajesh Kumar",
+                "phone": "+91 98765 43210",
+                "vehicle_type": "bike",
+                "vehicle_model": "Honda Activa 6G (Yellow Helmet)",
+                "vehicle_number": "KA 05 EQ 8821",
+                "license_number": "KA-05-2018-0091244",
+                "rc_number": "RC-KA05-882190",
+                "city": "Bengaluru",
+                "verification_status": "approved",
+                "is_verified": True,
+                "rating": Decimal("4.9"),
+                "total_rides": 340,
+                "earnings": Decimal("18500.00"),
+                "current_lat": 12.9716,
+                "current_lng": 77.5946,
+            },
+            {
+                "username": "captain_vikram",
+                "name": "Vikram Singh",
+                "phone": "+91 98112 34567",
+                "vehicle_type": "bike",
+                "vehicle_model": "TVS Jupiter 125",
+                "vehicle_number": "KA 03 BC 4519",
+                "license_number": "KA-03-2020-0012498",
+                "rc_number": "RC-KA03-451922",
+                "city": "Bengaluru",
+                "verification_status": "approved",
+                "is_verified": True,
+                "rating": Decimal("4.8"),
+                "total_rides": 215,
+                "earnings": Decimal("12400.00"),
+                "current_lat": 12.9784,
+                "current_lng": 77.6408,
+            },
+            {
+                "username": "captain_ramesh",
+                "name": "Ramesh Gowda",
+                "phone": "+91 98450 12345",
+                "vehicle_type": "auto",
+                "vehicle_model": "Bajaj RE Compact 4S",
+                "vehicle_number": "KA 01 TR 3491",
+                "license_number": "KA-01-2016-0044190",
+                "rc_number": "RC-KA01-349188",
+                "city": "Bengaluru",
+                "verification_status": "approved",
+                "is_verified": True,
+                "rating": Decimal("4.9"),
+                "total_rides": 480,
+                "earnings": Decimal("26800.00"),
+                "current_lat": 12.9352,
+                "current_lng": 77.6245,
+            },
+            {
+                "username": "captain_anand",
+                "name": "Anand Sharma",
+                "phone": "+91 97654 32109",
+                "vehicle_type": "auto",
+                "vehicle_model": "Piaggio Ape City",
+                "vehicle_number": "KA 02 AB 6721",
+                "license_number": "KA-02-2019-0077123",
+                "rc_number": "RC-KA02-672101",
+                "city": "Bengaluru",
+                "verification_status": "approved",
+                "is_verified": True,
+                "rating": Decimal("4.7"),
+                "total_rides": 190,
+                "earnings": Decimal("10200.00"),
+                "current_lat": 12.9279,
+                "current_lng": 77.6271,
+            },
+            {
+                "username": "captain_suresh",
+                "name": "Suresh Patel",
+                "phone": "+91 99001 23456",
+                "vehicle_type": "cab",
+                "vehicle_model": "Maruti Swift Dzire (AC)",
+                "vehicle_number": "KA 03 MN 9024",
+                "license_number": "KA-03-2015-0033871",
+                "rc_number": "RC-KA03-902455",
+                "city": "Bengaluru",
+                "verification_status": "approved",
+                "is_verified": True,
+                "rating": Decimal("4.9"),
+                "total_rides": 620,
+                "earnings": Decimal("45200.00"),
+                "current_lat": 12.9719,
+                "current_lng": 77.6412,
+            },
+            {
+                "username": "captain_deepak",
+                "name": "Deepak Verma",
+                "phone": "+91 98220 98765",
+                "vehicle_type": "cab",
+                "vehicle_model": "Hyundai Aura Sedan (AC)",
+                "vehicle_number": "KA 04 CJ 7732",
+                "license_number": "KA-04-2021-0088219",
+                "rc_number": "RC-KA04-773244",
+                "city": "Bengaluru",
+                "verification_status": "pending",
+                "is_verified": False,
+                "rating": Decimal("4.8"),
+                "total_rides": 0,
+                "earnings": Decimal("0.00"),
+                "current_lat": 12.9900,
+                "current_lng": 77.5900,
+            },
+            {
+                "username": "captain_rohit",
+                "name": "Rohit Deshmukh",
+                "phone": "+91 98334 55667",
+                "vehicle_type": "bike",
+                "vehicle_model": "Hero Splendor Plus",
+                "vehicle_number": "KA 05 MN 3311",
+                "license_number": "KA-05-2022-0099412",
+                "rc_number": "RC-KA05-331190",
+                "city": "Bengaluru",
+                "verification_status": "pending",
+                "is_verified": False,
+                "rating": Decimal("5.0"),
+                "total_rides": 0,
+                "earnings": Decimal("0.00"),
+                "current_lat": 12.9500,
+                "current_lng": 77.6000,
+            },
+            {
+                "username": "captain_ajay",
+                "name": "Ajay Rathod",
+                "phone": "+91 98440 99881",
+                "vehicle_type": "auto",
+                "vehicle_model": "Bajaj Compact Diesel",
+                "vehicle_number": "KA 01 ZZ 9901",
+                "license_number": "KA-01-2010-0011223",
+                "rc_number": "RC-KA01-990177",
+                "city": "Bengaluru",
+                "verification_status": "rejected",
+                "is_verified": False,
+                "rejection_reason": "Driving license photo blurred; expired vehicle insurance document.",
+                "rating": Decimal("4.2"),
+                "total_rides": 0,
+                "earnings": Decimal("0.00"),
+                "current_lat": 12.9100,
+                "current_lng": 77.5800,
+            },
+        ]
+
+        count = 0
+        for data in captains:
+            user, _ = User.objects.get_or_create(
+                username=data["username"],
+                defaults={
+                    "first_name": data["name"].split()[0],
+                    "last_name": data["name"].split()[-1],
+                    "email": f"{data['username']}@ridego.local",
+                }
+            )
+            if not user.password:
+                user.set_password("CaptainPass123!")
+                user.save()
+
+            driver, created = Driver.objects.update_or_create(
+                user=user,
+                defaults={
+                    "name": data["name"],
+                    "phone": data["phone"],
+                    "vehicle_type": data["vehicle_type"],
+                    "vehicle_model": data["vehicle_model"],
+                    "vehicle_number": data["vehicle_number"],
+                    "license_number": data.get("license_number", ""),
+                    "rc_number": data.get("rc_number", ""),
+                    "city": data.get("city", "Bengaluru"),
+                    "verification_status": data.get("verification_status", "pending"),
+                    "is_verified": data.get("is_verified", False),
+                    "rejection_reason": data.get("rejection_reason", ""),
+                    "rating": data["rating"],
+                    "total_rides": data["total_rides"],
+                    "earnings": data.get("earnings", Decimal("0.00")),
+                    "current_lat": data.get("current_lat", 12.9716),
+                    "current_lng": data.get("current_lng", 77.5946),
+                    "is_available": True,
+                }
+            )
+            count += 1
+
+        self.stdout.write(self.style.SUCCESS(f"Successfully seeded {count} Rapido Captains with verification statuses!"))

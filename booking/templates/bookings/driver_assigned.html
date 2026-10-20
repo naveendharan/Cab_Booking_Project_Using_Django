@@ -1,0 +1,111 @@
+{% extends "booking/base.html" %}
+
+{% block title %}Captain Assigned - RideGo{% endblock %}
+
+{% block content %}
+<div class="driver-page">
+    <div class="driver-container">
+        <div class="driver-card">
+            <div class="driver-success">
+                <div class="check">✓</div>
+                <span class="status-badge status-assigned" style="margin-bottom: 8px;">CAPTAIN EN ROUTE</span>
+                <h2>Your Captain is on the way!</h2>
+                <p>Arriving at your pickup in approximately <strong>{{ meta.time }}</strong>.</p>
+            </div>
+
+            <div style="padding: 24px 30px;">
+                <!-- 4-DIGIT RAPIDO START OTP -->
+                <div style="background: #171717; color: #fff; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 24px; box-shadow: 0 8px 25px rgba(0,0,0,0.12);">
+                    <div style="font-size: 11px; font-weight: 800; letter-spacing: 2px; color: #f9d949; text-transform: uppercase;">
+                        YOUR RIDE START PIN
+                    </div>
+                    <div style="font-size: 42px; font-weight: 800; letter-spacing: 12px; color: #f9d949; margin: 6px 0; font-family: monospace;">
+                        {{ ride.otp }}
+                    </div>
+                    <div style="font-size: 12px; color: #aaa;">
+                        🔒 Share this 4-digit PIN with Captain only when you board
+                    </div>
+                </div>
+
+                <!-- CAPTAIN INFO CARD -->
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; padding: 20px; background: #fafaf8; border: 1px solid #e8e8e3; border-radius: 14px; margin-bottom: 24px;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                        <div style="width: 60px; height: 60px; border-radius: 50%; background: #f9d949; color: #171717; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: 800; border: 3px solid #171717;">
+                            {{ ride.driver.display_name|first|upper }}
+                        </div>
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 800; margin: 0;">
+                                {{ ride.driver.display_name }}
+                            </h3>
+                            <div style="display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 12px;">
+                                <span style="background: #171717; color: #f9d949; padding: 2px 7px; border-radius: 12px; font-weight: 700;">
+                                    ★ {{ ride.driver.rating }}
+                                </span>
+                                <span style="color: #666;">
+                                    ({{ ride.driver.total_rides }} rides completed)
+                                </span>
+                            </div>
+                            <div style="font-size: 13px; font-weight: 700; color: #333;">
+                                {{ ride.icon }} {{ ride.driver.vehicle_model }} • <span style="background: #fff; border: 1px solid #ccc; padding: 2px 6px; border-radius: 4px; font-family: monospace;">{{ ride.driver.vehicle_number }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="tel:{{ ride.driver.phone }}" class="secondary-btn" style="padding: 10px 14px; font-size: 13px; white-space: nowrap;">
+                        📞 Call Captain
+                    </a>
+                </div>
+
+                <!-- ROUTE DETAILS -->
+                <div style="margin-bottom: 24px; padding: 16px; border: 1px solid #ecece7; border-radius: 12px; font-size: 13px;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                        <span style="color: #16854a; font-size: 14px;">🟢</span>
+                        <div>
+                            <small style="color: #888; font-size: 10px; font-weight: 800; display: block;">PICKUP</small>
+                            <strong>{{ ride.pickup }}</strong>
+                        </div>
+                    </div>
+                    <div style="border-left: 2px dashed #ddd; margin-left: 6px; height: 14px;"></div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="color: #d93636; font-size: 14px;">📍</span>
+                        <div>
+                            <small style="color: #888; font-size: 10px; font-weight: 800; display: block;">DESTINATION</small>
+                            <strong>{{ ride.destination }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FARE & PAYMENT -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; background: #fff8d8; border-radius: 10px; margin-bottom: 24px; font-size: 14px;">
+                    <div>
+                        <span style="color: #776000;">Payment Mode:</span>
+                        <strong style="text-transform: capitalize;"> {{ ride.payment_method }}</strong>
+                    </div>
+                    <div>
+                        <span style="color: #776000;">Total Fare:</span>
+                        <strong style="font-size: 18px; color: #171717;"> ₹{{ ride.estimated_fare|floatformat:0 }}</strong>
+                    </div>
+                </div>
+
+                <!-- ACTION BUTTONS -->
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <!-- SIMULATE START RIDE -->
+                    <a href="{% url 'start_ride' ride.id %}" class="find-btn" id="start-ride-btn" style="text-align: center; display: block; text-decoration: none;">
+                        Captain Arrived • Start Ride →
+                    </a>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+                        <a href="{% url 'cancel_ride' ride.id %}" onclick="return confirm('Are you sure you want to cancel this ride?');" style="color: #b32323; font-size: 13px; font-weight: 700;">
+                            Cancel Ride
+                        </a>
+
+                        <a href="{% url 'my_rides' %}" style="color: #666; font-size: 13px;">
+                            View in My Rides →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

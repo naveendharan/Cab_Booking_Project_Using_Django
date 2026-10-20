@@ -1,0 +1,84 @@
+{% extends "booking/base.html" %}
+
+{% block title %}Connecting Captain - RideGo{% endblock %}
+
+{% block content %}
+<div class="searching-page">
+    <div class="searching-card">
+        <!-- RADAR ANIMATION -->
+        <div style="position: relative; width: 120px; height: 120px; margin: 0 auto 24px;">
+            <div style="position: absolute; inset: 0; border-radius: 50%; background: rgba(249, 217, 73, 0.25); animation: pulse-ring 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;"></div>
+            <div style="position: absolute; inset: 15px; border-radius: 50%; background: rgba(249, 217, 73, 0.4); animation: pulse-ring 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite 0.4s;"></div>
+            <div style="position: absolute; inset: 30px; border-radius: 50%; background: #171717; display: flex; align-items: center; justify-content: center; font-size: 28px; box-shadow: 0 4px 15px rgba(0,0,0,0.15);">
+                {{ ride.icon }}
+            </div>
+        </div>
+
+        <span class="status-badge status-searching" style="margin-bottom: 12px;">SEARCHING NEARBY</span>
+        <h2>Finding your Captain...</h2>
+        <p>
+            Locating the closest top-rated <strong>{{ meta.name }}</strong> near <strong>{{ ride.pickup }}</strong>.
+        </p>
+
+        <!-- ROUTE PREVIEW -->
+        <div style="margin: 24px 0; padding: 16px; background: #fafaf8; border: 1px solid #e8e8e3; border-radius: 12px; text-align: left; font-size: 13px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="color: #777;">Trip:</span>
+                <strong>{{ ride.pickup }} → {{ ride.destination }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: #777;">Estimated Fare:</span>
+                <strong style="color: #171717; font-size: 15px;">₹{{ ride.estimated_fare|floatformat:0 }}</strong>
+            </div>
+        </div>
+
+        <!-- PROGRESS STATUS -->
+        <div style="font-size: 12px; color: #888; margin-bottom: 20px;">
+            <span id="matching-status">Contacting nearby available Captains...</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <a href="{% url 'assign_driver' ride.id %}" class="find-btn" id="assign-btn">
+                Connect With Captain Now →
+            </a>
+
+            <a href="{% url 'cancel_ride' ride.id %}" style="font-size: 13px; color: #999; text-decoration: underline; padding: 8px;">
+                Cancel Ride Request
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+@keyframes pulse-ring {
+    0% {
+        transform: scale(0.7);
+        opacity: 0.9;
+    }
+    100% {
+        transform: scale(1.3);
+        opacity: 0;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Auto-simulate matching after 2.8 seconds
+let countdown = 3;
+const statusEl = document.getElementById('matching-status');
+
+const timer = setInterval(() => {
+    countdown--;
+    if (countdown > 0) {
+        if (statusEl) statusEl.innerText = `Captain found! Connecting in ${countdown}s...`;
+    } else {
+        clearInterval(timer);
+        window.location.href = "{% url 'assign_driver' ride.id %}";
+    }
+}, 1000);
+</script>
+{% endblock %}

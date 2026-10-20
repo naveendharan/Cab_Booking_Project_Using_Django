@@ -1,0 +1,85 @@
+{% extends "booking/base.html" %}
+
+{% block title %}Choose Ride - RideGo{% endblock %}
+
+{% block content %}
+<div class="ride-selection-page">
+    <div class="ride-selection-container">
+        <div class="section-heading">
+            <span class="section-label">STEP 1 OF 3 • VEHICLE OPTIONS</span>
+            <h2>Select your ride</h2>
+            <p>Compare arrival times and transparent fares for your journey.</p>
+        </div>
+
+        <!-- ROUTE SUMMARY CARD -->
+        <div class="route-card">
+            <div class="route-row">
+                <div class="route-icon">🟢</div>
+                <div class="route-info">
+                    <small>PICKUP POINT</small>
+                    <strong>{{ pickup }}</strong>
+                </div>
+            </div>
+
+            <div class="route-divider"></div>
+
+            <div class="route-row">
+                <div class="route-icon">📍</div>
+                <div class="route-info">
+                    <small>DROP DESTINATION</small>
+                    <strong>{{ destination }}</strong>
+                </div>
+            </div>
+
+            <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed #e2e2dc; display: flex; justify-content: space-between; align-items: center; font-size: 13px;">
+                <span style="color: #666;">Estimated Route Distance:</span>
+                <strong style="color: #171717; background: #fff8d8; padding: 4px 10px; border-radius: 20px;">
+                    🛣️ {{ distance }} km
+                </strong>
+            </div>
+        </div>
+
+        <!-- RIDE OPTIONS LIST -->
+        <div class="ride-options">
+            {% for ride in rides %}
+            <form method="POST" action="{% url 'booking_confirm' %}">
+                {% csrf_token %}
+                <input type="hidden" name="ride_type" value="{{ ride.type }}">
+
+                <button type="submit" class="ride-option" style="width: 100%; text-align: left; cursor: pointer;">
+                    <div class="ride-option-icon">
+                        {{ ride.icon }}
+                    </div>
+
+                    <div class="ride-option-info">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <h3>{{ ride.name }}</h3>
+                            <span class="status-badge status-searching" style="font-size: 9px; padding: 3px 8px;">
+                                {{ ride.badge }}
+                            </span>
+                        </div>
+                        <p>{{ ride.description }}</p>
+                        <div style="margin-top: 6px; font-size: 11px; color: #777;">
+                            ⏱️ Arrives in <strong>{{ ride.time }}</strong> • 👥 Capacity: {{ ride.capacity }}
+                        </div>
+                    </div>
+
+                    <div class="ride-option-price">
+                        <strong>₹{{ ride.fare|floatformat:0 }}</strong>
+                        <div class="select-ride-btn">
+                            Book {{ ride.name }} →
+                        </div>
+                    </div>
+                </button>
+            </form>
+            {% endfor %}
+        </div>
+
+        <div style="margin-top: 24px; text-align: center;">
+            <a href="{% url 'home' %}" style="font-size: 13px; color: #777; text-decoration: underline;">
+                ← Change pickup or destination
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,359 @@
+{% extends "booking/base.html" %}
+
+{% block title %}Captain Cockpit - RideGo Driver Partner{% endblock %}
+
+{% block content %}
+<div class="cockpit-container">
+
+    <!-- COCKPIT HEADER WITH STATUS TOGGLE -->
+    <div class="cockpit-header">
+        <div style="display: flex; align-items: center; gap: 18px;">
+            <div style="width: 58px; height: 58px; border-radius: 50%; background: #f9d949; color: #171717; display: grid; place-items: center; font-size: 26px; font-weight: 800; border: 3px solid #ffffff;">
+                {{ driver.display_name|first|upper }}
+            </div>
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <h2 style="font-size: 22px; font-weight: 800; color: #ffffff; margin: 0;">
+                        Captain {{ driver.display_name }}
+                    </h2>
+                    <span class="permit-status-pill status-pill-approved" style="font-size: 11px;">
+                        Permitted ✓
+                    </span>
+                </div>
+                <div style="color: #94a3b8; font-size: 13px; margin-top: 4px;">
+                    {{ meta.name }} • <strong>{{ driver.vehicle_model }}</strong> ({{ driver.vehicle_number }}) • ★ {{ driver.rating }}
+                </div>
+            </div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <!-- ONLINE/OFFLINE TOGGLE -->
+            <form method="POST" action="{% url 'captain_toggle_status' %}">
+                {% csrf_token %}
+                <button
+                    type="submit"
+                    style="display: flex; align-items: center; gap: 10px; padding: 12px 22px; border-radius: 30px; font-weight: 800; font-size: 14px; cursor: pointer; border: none; transition: all 0.2s; {% if driver.is_available %}background: #10b981; color: #ffffff; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);{% else %}background: #475569; color: #ffffff;{% endif %}"
+                >
+                    <span style="width: 10px; height: 10px; border-radius: 50%; background: #ffffff; display: inline-block; {% if driver.is_available %}animation: livePulse 1.5s infinite;{% endif %}"></span>
+                    {% if driver.is_available %}YOU ARE ONLINE{% else %}YOU ARE OFFLINE{% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- METRICS STRIP -->
+    <div class="cockpit-stats-bar">
+        <div class="cockpit-stat-item">
+            <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px;">Today's Trips</span>
+            <div style="font-size: 26px; font-weight: 800; color: #0f172a; margin-top: 4px;">{{ today_completed }}</div>
+        </div>
+        <div class="cockpit-stat-item">
+            <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px;">Total Completed</span>
+            <div style="font-size: 26px; font-weight: 800; color: #0f172a; margin-top: 4px;">{{ driver.total_rides }}</div>
+        </div>
+        <div class="cockpit-stat-item">
+            <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px;">Total Earnings</span>
+            <div style="font-size: 26px; font-weight: 800; color: #10b981; margin-top: 4px;">₹{{ driver.earnings|floatformat:0 }}</div>
+        </div>
+        <div class="cockpit-stat-item">
+            <span style="font-size: 11px; font-weight: 800; text-transform: uppercase; color: #64748b; letter-spacing: 0.5px;">Safety Rating</span>
+            <div style="font-size: 26px; font-weight: 800; color: #f59e0b; margin-top: 4px;">★ {{ driver.rating }}</div>
+        </div>
+    </div>
+
+    <!-- MAIN TWO COLUMN COCKPIT LAYOUT -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px;" id="cockpit-grid">
+        
+        <!-- LEFT COLUMN: ACTIVE RIDE OR INCOMING RIDE REQUESTS -->
+        <div>
+            {% if active_ride %}
+                <!-- ACTIVE RIDE IN PROGRESS -->
+                <div style="background: #ffffff; border: 2px solid #10b981; border-radius: 20px; padding: 26px; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #f1f5f9;">
+                        <div>
+                            <span style="background: {% if active_ride.status == 'started' %}#2563eb{% else %}#10b981{% endif %}; color: #fff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                {% if active_ride.status == 'started' %}TRIP IN PROGRESS{% else %}EN ROUTE TO PICKUP{% endif %}
+                            </span>
+                            <h3 style="font-size: 20px; font-weight: 800; color: #0f172a; margin: 8px 0 0;">
+                                Ride #{{ active_ride.id }} • {{ active_ride.user.first_name|default:active_ride.user.username }}
+                            </h3>
+                        </div>
+                        <div style="text-align: right;">
+                            <span style="font-size: 11px; color: #64748b; font-weight: 700;">TOTAL FARE</span>
+                            <div style="font-size: 22px; font-weight: 800; color: #0f172a;">₹{{ active_ride.estimated_fare|floatformat:0 }}</div>
+                        </div>
+                    </div>
+
+                    <!-- ROUTE ADDRESSES -->
+                    <div style="margin-bottom: 20px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <span style="font-size: 16px;">🟢</span>
+                            <div>
+                                <small style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; display: block;">PICKUP LOCATION</small>
+                                <strong style="font-size: 14px; color: #0f172a;">{{ active_ride.pickup }}</strong>
+                            </div>
+                        </div>
+                        <div style="border-left: 2px dashed #cbd5e1; margin-left: 8px; height: 16px;"></div>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <span style="font-size: 16px;">📍</span>
+                            <div>
+                                <small style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; display: block;">DESTINATION</small>
+                                <strong style="font-size: 14px; color: #0f172a;">{{ active_ride.destination }}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if active_ride.status == 'assigned' %}
+                        <!-- STEP 1: ARRIVED & OTP VERIFICATION FORM -->
+                        <div style="background: #0f172a; border-radius: 16px; padding: 22px; color: #ffffff; text-align: center; margin-bottom: 20px;">
+                            <div style="font-size: 12px; font-weight: 800; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">
+                                🔒 PASSENGER 4-DIGIT RIDE PIN VERIFICATION
+                            </div>
+                            <p style="font-size: 13px; color: #94a3b8; margin: 0 0 16px;">
+                                Ask passenger for the 4-digit PIN shown on their screen to start the trip.
+                            </p>
+
+                            <form method="POST" action="{% url 'captain_verify_otp' active_ride.id %}" style="display: flex; justify-content: center; gap: 10px;">
+                                {% csrf_token %}
+                                <input
+                                    type="text"
+                                    name="otp"
+                                    maxlength="4"
+                                    required
+                                    placeholder="4-DIGIT PIN"
+                                    style="width: 180px; text-align: center; font-size: 24px; font-family: monospace; font-weight: 800; letter-spacing: 6px; padding: 10px; border-radius: 10px; border: 2px solid #f59e0b; background: #1e293b; color: #f9d949; outline: none;"
+                                >
+                                <button
+                                    type="submit"
+                                    style="background: #f9d949; color: #171717; border: none; border-radius: 10px; font-weight: 800; font-size: 14px; padding: 10px 18px; cursor: pointer;"
+                                >
+                                    Verify PIN & Start Trip →
+                                </button>
+                            </form>
+                        </div>
+
+                    {% elif active_ride.status == 'started' %}
+                        <!-- STEP 2: TRIP IN TRANSIT & COMPLETE BUTTON -->
+                        <div style="background: #ecfdf5; border: 1.5px solid #a7f3d0; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 20px;">
+                            <span style="font-size: 12px; font-weight: 800; color: #065f46; text-transform: uppercase; letter-spacing: 0.5px;">
+                                ⚡ IN TRANSIT TO DESTINATION
+                            </span>
+                            <div style="font-size: 14px; color: #047857; margin: 6px 0 16px;">
+                                Navigate safely according to GPS. Collect <strong>₹{{ active_ride.estimated_fare|floatformat:0 }}</strong> upon arrival.
+                            </div>
+
+                            <a
+                                href="{% url 'captain_complete' active_ride.id %}"
+                                onclick="return confirm('Confirm destination arrival and fare collection of ₹{{ active_ride.estimated_fare|floatformat:0 }}?')"
+                                style="display: block; background: #10b981; color: #ffffff; text-decoration: none; padding: 14px; border-radius: 12px; font-weight: 800; font-size: 15px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);"
+                            >
+                                ✓ Arrived at Destination • Complete Ride
+                            </a>
+                        </div>
+                    {% endif %}
+
+                    <!-- EMERGENCY & CALL ACTIONS -->
+                    <div style="display: flex; gap: 10px;">
+                        <a href="tel:112" style="flex: 1; text-align: center; padding: 10px; background: #fef2f2; border: 1px solid #fecaca; color: #ef4444; border-radius: 10px; text-decoration: none; font-size: 12px; font-weight: 700;">
+                            🚨 Emergency
+                        </a>
+                        <button type="button" onclick="alert('Connecting to Passenger on encrypted line...')" style="flex: 1; padding: 10px; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer;">
+                            📞 Call Passenger
+                        </button>
+                    </div>
+                </div>
+
+            {% else %}
+                <!-- INCOMING RIDE REQUESTS QUEUE -->
+                <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 24px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                        <div>
+                            <h3 style="font-size: 18px; font-weight: 800; color: #0f172a; margin: 0;">
+                                Live Ride Requests
+                            </h3>
+                            <small style="color: #64748b; font-size: 12px;">Matches your vehicle: {{ meta.name }}</small>
+                        </div>
+                        <span style="font-size: 12px; font-weight: 800; background: #eff6ff; color: #2563eb; padding: 4px 10px; border-radius: 20px;">
+                            {{ incoming_rides|length }} available
+                        </span>
+                    </div>
+
+                    {% if not driver.is_available %}
+                        <div style="text-align: center; padding: 40px 20px; background: #f8fafc; border-radius: 16px;">
+                            <div style="font-size: 32px; margin-bottom: 10px;">💤</div>
+                            <strong style="display: block; font-size: 15px; color: #0f172a;">You are currently Offline</strong>
+                            <p style="color: #64748b; font-size: 13px; margin: 6px 0 16px;">Turn on your Online status above to receive live trip requests in your area.</p>
+                        </div>
+                    {% elif incoming_rides %}
+                        {% for ride in incoming_rides %}
+                            <div class="incoming-ride-card">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                                    <div>
+                                        <span style="font-size: 10px; font-weight: 800; color: #b45309; background: #fffbeb; border: 1px solid #fde68a; padding: 2px 7px; border-radius: 10px; text-transform: uppercase;">
+                                            {{ ride.get_ride_type_display }}
+                                        </span>
+                                        <h4 style="font-size: 16px; font-weight: 800; color: #0f172a; margin: 6px 0 0;">
+                                            Trip #{{ ride.id }} • {{ ride.distance }} km
+                                        </h4>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 20px; font-weight: 800; color: #10b981;">
+                                            ₹{{ ride.estimated_fare|floatformat:0 }}
+                                        </div>
+                                        <small style="color: #64748b; font-size: 10px; font-weight: 700; text-transform: uppercase;">{{ ride.payment_method }}</small>
+                                    </div>
+                                </div>
+
+                                <div style="font-size: 13px; color: #334155; margin-bottom: 16px; line-height: 1.5;">
+                                    <div>🟢 <strong>Pickup:</strong> {{ ride.pickup }}</div>
+                                    <div style="margin-top: 4px;">📍 <strong>Drop:</strong> {{ ride.destination }}</div>
+                                </div>
+
+                                <a
+                                    href="{% url 'captain_accept_ride' ride.id %}"
+                                    style="display: block; text-align: center; background: #171717; color: #f9d949; text-decoration: none; padding: 12px; border-radius: 12px; font-weight: 800; font-size: 14px; transition: background 0.2s;"
+                                    onmouseover="this.style.background='#262626'"
+                                    onmouseout="this.style.background='#171717'"
+                                >
+                                    Accept Ride Request →
+                                </a>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <div style="text-align: center; padding: 40px 20px; background: #f8fafc; border-radius: 16px;">
+                            <div style="font-size: 32px; margin-bottom: 10px;">📡</div>
+                            <strong style="display: block; font-size: 15px; color: #0f172a;">Scanning for Ride Requests...</strong>
+                            <p style="color: #64748b; font-size: 13px; margin: 6px 0 0;">You are online in Bengaluru. New trip requests will automatically pop up here.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- RIGHT COLUMN: REAL INTERACTIVE LEAFLET GPS MAP -->
+        <div>
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 18px; box-shadow: 0 4px 20px rgba(0,0,0,0.03);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div>
+                        <strong style="font-size: 14px; color: #0f172a;">Real-Time GPS Street Navigation</strong>
+                        <small style="color: #64748b; display: block; font-size: 11px;">Carto Voyager Live Map Engine</small>
+                    </div>
+                    <span style="font-size: 11px; font-weight: 700; color: #10b981; background: #ecfdf5; padding: 3px 10px; border-radius: 20px;">
+                        ● GPS High Accuracy
+                    </span>
+                </div>
+
+                <div class="real-map-box" style="height: 480px; position: relative;">
+                    <div id="captain-nav-map" style="width: 100%; height: 100%;"></div>
+                    <div class="real-map-badge">
+                        <span class="live-dot"></span>
+                        LIVE STREET TRACKING
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- REAL MAP INTEGRATION SCRIPT -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Bengaluru default center
+    const captainLat = {{ driver.current_lat|default:"12.9716" }};
+    const captainLng = {{ driver.current_lng|default:"77.5946" }};
+
+    const map = L.map('captain-nav-map', {
+        zoomControl: true,
+        scrollWheelZoom: false
+    }).setView([captainLat, captainLng], 13);
+
+    // High quality Carto Voyager tiles
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(map);
+
+    // Custom Captain Vehicle Icon
+    const captainIcon = L.divIcon({
+        className: 'custom-captain-pin',
+        html: `<div class="vehicle-map-marker" style="background:#171717; color:#f9d949; width:44px; height:44px; font-size:22px; border:3px solid #f9d949;">
+                {{ driver.vehicle_type|slice:":1"|upper }}{% if driver.vehicle_type == 'bike' %}🏍️{% elif driver.vehicle_type == 'auto' %}🛺{% else %}🚕{% endif %}
+               </div>`,
+        iconSize: [44, 44],
+        iconAnchor: [22, 22]
+    });
+
+    const captainMarker = L.marker([captainLat, captainLng], { icon: captainIcon })
+        .addTo(map)
+        .bindPopup(`<strong>Captain {{ driver.display_name }}</strong><br>{{ driver.vehicle_model }} ({{ driver.vehicle_number }})`)
+        .openPopup();
+
+    {% if active_ride %}
+        // Plot Pickup and Destination coordinates
+        const pLat = {{ active_ride.pickup_lat|default:"12.9784" }};
+        const pLng = {{ active_ride.pickup_lng|default:"77.6408" }};
+        const dLat = {{ active_ride.destination_lat|default:"12.9352" }};
+        const dLng = {{ active_ride.destination_lng|default:"77.6245" }};
+
+        const pickupIcon = L.divIcon({
+            className: 'pickup-pin',
+            html: '<div class="pickup-map-marker">🟢</div>',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+
+        const dropIcon = L.divIcon({
+            className: 'drop-pin',
+            html: '<div class="drop-map-marker">📍</div>',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+
+        const pMarker = L.marker([pLat, pLng], { icon: pickupIcon }).addTo(map).bindPopup("Pickup: {{ active_ride.pickup|escapejs }}");
+        const dMarker = L.marker([dLat, dLng], { icon: dropIcon }).addTo(map).bindPopup("Destination: {{ active_ride.destination|escapejs }}");
+
+        // Fit map bounds to show full route
+        const bounds = L.latLngBounds([
+            [captainLat, captainLng],
+            [pLat, pLng],
+            [dLat, dLng]
+        ]);
+        map.fitBounds(bounds, { padding: [50, 50] });
+
+        // Fetch real road route geometry from OSRM
+        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pLng},${pLat};${dLng},${dLat}?overview=full&geometries=geojson`;
+        fetch(osrmUrl)
+            .then(res => res.json())
+            .then(data => {
+                if (data.routes && data.routes.length > 0) {
+                    const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+                    L.polyline(coords, {
+                        color: '#10b981',
+                        weight: 5,
+                        opacity: 0.85,
+                        dashArray: '8, 8'
+                    }).addTo(map);
+                }
+            })
+            .catch(() => {
+                // Fallback straight route line if offline
+                L.polyline([[pLat, pLng], [dLat, dLng]], {
+                    color: '#10b981',
+                    weight: 4,
+                    dashArray: '6, 6'
+                }).addTo(map);
+            });
+    {% endif %}
+});
+</script>
+<style>
+@media (max-width: 860px) {
+    #cockpit-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "booking/base.html" %}
+
+{% block title %}Confirm Booking - RideGo{% endblock %}
+
+{% block content %}
+<div class="confirm-page">
+    <div class="confirm-container">
+        <div class="confirm-card">
+            <div class="confirm-header">
+                <span class="hero-label" style="font-size: 10px;">STEP 2 OF 3 • TRIP SUMMARY</span>
+                <h2>Confirm your ride</h2>
+                <p>Verify ride details and choose your preferred payment option.</p>
+            </div>
+
+            <div class="confirm-body">
+                <div style="display: flex; align-items: center; gap: 16px; padding: 18px; background: #fafaf8; border-radius: 14px; margin-bottom: 24px; border: 1px solid #ebebe6;">
+                    <div style="font-size: 40px;">
+                        {{ ride_icon }}
+                    </div>
+                    <div>
+                        <div style="font-size: 11px; font-weight: 800; color: #888; text-transform: uppercase;">
+                            VEHICLE TYPE
+                        </div>
+                        <h3 style="font-size: 20px; font-weight: 800; margin: 2px 0;">
+                            {{ ride_name }}
+                        </h3>
+                        <div style="font-size: 12px; color: #666;">
+                            Estimated Captain arrival in <strong>{{ time }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="confirm-row">
+                    <span class="confirm-label">Pickup Point</span>
+                    <strong class="confirm-value">🟢 {{ pickup }}</strong>
+                </div>
+
+                <div class="confirm-row">
+                    <span class="confirm-label">Destination</span>
+                    <strong class="confirm-value">📍 {{ destination }}</strong>
+                </div>
+
+                <div class="confirm-row">
+                    <span class="confirm-label">Distance</span>
+                    <strong class="confirm-value">{{ distance }} km</strong>
+                </div>
+
+                <div class="confirm-row">
+                    <span class="confirm-label">Base Fare</span>
+                    <strong class="confirm-value">₹{{ base_fare }}</strong>
+                </div>
+
+                <div class="confirm-row">
+                    <span class="confirm-label">Distance Fare</span>
+                    <strong class="confirm-value">₹{{ distance_fare|floatformat:2 }}</strong>
+                </div>
+
+                <div class="confirm-total">
+                    <div>
+                        <span>TOTAL PAYABLE FARE</span>
+                        <div style="font-size: 11px; color: #887820;">Inclusive of taxes & safety fee</div>
+                    </div>
+                    <strong>₹{{ fare|floatformat:0 }}</strong>
+                </div>
+
+                <!-- PAYMENT SELECTION & FORM -->
+                <form method="POST" action="{% url 'create_booking' %}" style="margin-top: 24px;">
+                    {% csrf_token %}
+                    <input type="hidden" name="ride_type" value="{{ ride_type }}">
+
+                    <div style="margin-bottom: 22px;">
+                        <label style="display: block; font-size: 13px; font-weight: 800; margin-bottom: 10px; color: #333;">
+                            Select Payment Method:
+                        </label>
+
+                        <div style="display: grid; gap: 10px;">
+                            <label style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid #e2e2dc; border-radius: 10px; cursor: pointer; background: #fff;">
+                                <input type="radio" name="payment_method" value="cash" checked style="accent-color: #171717;">
+                                <div style="flex: 1;">
+                                    <strong>💵 Cash to Captain</strong>
+                                    <div style="font-size: 11px; color: #777;">Pay exact fare in cash at trip completion</div>
+                                </div>
+                            </label>
+
+                            <label style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid #e2e2dc; border-radius: 10px; cursor: pointer; background: #fff;">
+                                <input type="radio" name="payment_method" value="upi" style="accent-color: #171717;">
+                                <div style="flex: 1;">
+                                    <strong>📱 UPI / QR Code</strong>
+                                    <div style="font-size: 11px; color: #777;">Pay via GPay, PhonePe, Paytm upon arrival</div>
+                                </div>
+                            </label>
+
+                            <label style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid #e2e2dc; border-radius: 10px; cursor: pointer; background: #fff;">
+                                <input type="radio" name="payment_method" value="wallet" style="accent-color: #171717;">
+                                <div style="flex: 1;">
+                                    <strong>💳 RideGo Wallet (Balance: ₹350)</strong>
+                                    <div style="font-size: 11px; color: #777;">Instant 1-tap zero hassle checkout</div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="background: #fffbe8; border: 1px solid #f2e7b5; border-radius: 10px; padding: 12px 16px; margin-bottom: 22px; font-size: 12px; color: #776000;">
+                        🔒 <strong>Safety Note:</strong> A unique 4-digit Start PIN will be assigned. Verify with Captain before onboarding.
+                    </div>
+
+                    <button type="submit" class="find-btn" id="confirm-booking-btn">
+                        Confirm & Match Captain →
+                    </button>
+                </form>
+
+                <div style="margin-top: 18px; text-align: center;">
+                    <a href="{% url 'select_ride' %}" style="font-size: 13px; color: #777; text-decoration: underline;">
+                        ← Back to ride selection
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,257 @@
+{% extends "booking/base.html" %}
+
+{% block title %}Apply to Become a Captain - RideGo Commercial Permit{% endblock %}
+
+{% block content %}
+<div style="min-height: calc(100vh - 120px); padding: 40px 20px; background: linear-gradient(180deg, #fafaf9 0%, #f1f5f9 100%);">
+    <div style="max-width: 900px; margin: 0 auto;">
+
+        <div style="text-align: center; margin-bottom: 32px;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: #fffbeb; border: 1px solid #fde68a; padding: 6px 16px; border-radius: 30px; font-size: 12px; font-weight: 800; color: #b45309; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">
+                ⚡ COMMERCIAL DRIVER ONBOARDING
+            </div>
+            <h1 style="font-size: 32px; font-weight: 800; color: #0f172a; margin: 0; letter-spacing: -0.8px;">
+                Become a RideGo Captain
+            </h1>
+            <p style="color: #64748b; font-size: 15px; margin-top: 8px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                Drive your own Bike, Auto, or Cab. Submit your vehicle and driving license details for official Admin verification & permit issuance.
+            </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr; gap: 30px;">
+            <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 24px; padding: 36px 32px; box-shadow: 0 15px 40px rgba(0,0,0,0.06);">
+                
+                <form method="POST" action="{% url 'captain_register' %}" id="captain-onboard-form">
+                    {% csrf_token %}
+
+                    <!-- SECTION 1: PERSONAL INFORMATION -->
+                    <div style="margin-bottom: 28px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;">
+                            <span style="width: 28px; height: 28px; border-radius: 50%; background: #171717; color: #f9d949; display: grid; place-items: center; font-size: 13px; font-weight: 800;">1</span>
+                            <h3 style="font-size: 17px; font-weight: 800; color: #0f172a; margin: 0;">Captain Personal Details</h3>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 6px;">
+                                    Full Name *
+                                </label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    required
+                                    placeholder="e.g. Ramesh Kumar"
+                                    oninput="updateCardPreview()"
+                                    id="input-name"
+                                    style="width: 100%; padding: 12px 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none;"
+                                >
+                            </div>
+
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 6px;">
+                                    Mobile Phone Number *
+                                </label>
+                                <input
+                                    type="text"
+                                    name="phone"
+                                    required
+                                    placeholder="e.g. +91 98765 43210"
+                                    style="width: 100%; padding: 12px 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none;"
+                                >
+                            </div>
+
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 6px;">
+                                    Portal Username *
+                                </label>
+                                <input
+                                    type="text"
+                                    name="username"
+                                    required
+                                    placeholder="e.g. captain_ramesh26"
+                                    style="width: 100%; padding: 12px 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none;"
+                                >
+                            </div>
+
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 6px;">
+                                    Password *
+                                </label>
+                                <input
+                                    type="password"
+                                    name="password"
+                                    required
+                                    placeholder="Min 6 characters"
+                                    style="width: 100%; padding: 12px 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none;"
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 2: VEHICLE CATEGORY -->
+                    <div style="margin-bottom: 28px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;">
+                            <span style="width: 28px; height: 28px; border-radius: 50%; background: #171717; color: #f9d949; display: grid; place-items: center; font-size: 13px; font-weight: 800;">2</span>
+                            <h3 style="font-size: 17px; font-weight: 800; color: #0f172a; margin: 0;">Vehicle Category & Model</h3>
+                        </div>
+
+                        <!-- Vehicle selection cards -->
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 18px;">
+                            <label style="border: 2px solid #cbd5e1; border-radius: 14px; padding: 14px; text-align: center; cursor: pointer; transition: all 0.2s;" id="vcard-bike" onclick="selectVehicle('bike')">
+                                <input type="radio" name="vehicle_type" value="bike" checked style="display: none;">
+                                <div style="font-size: 28px; margin-bottom: 6px;">🏍️</div>
+                                <strong style="display: block; font-size: 13px; color: #0f172a;">Bike Taxi</strong>
+                                <small style="color: #64748b; font-size: 11px;">1 Passenger</small>
+                            </label>
+
+                            <label style="border: 2px solid #cbd5e1; border-radius: 14px; padding: 14px; text-align: center; cursor: pointer; transition: all 0.2s;" id="vcard-auto" onclick="selectVehicle('auto')">
+                                <input type="radio" name="vehicle_type" value="auto" style="display: none;">
+                                <div style="font-size: 28px; margin-bottom: 6px;">🛺</div>
+                                <strong style="display: block; font-size: 13px; color: #0f172a;">Auto Rickshaw</strong>
+                                <small style="color: #64748b; font-size: 11px;">3 Passengers</small>
+                            </label>
+
+                            <label style="border: 2px solid #cbd5e1; border-radius: 14px; padding: 14px; text-align: center; cursor: pointer; transition: all 0.2s;" id="vcard-cab" onclick="selectVehicle('cab')">
+                                <input type="radio" name="vehicle_type" value="cab" style="display: none;">
+                                <div style="font-size: 28px; margin-bottom: 6px;">🚕</div>
+                                <strong style="display: block; font-size: 13px; color: #0f172a;">Cab Economy</strong>
+                                <small style="color: #64748b; font-size: 11px;">4 Passengers</small>
+                            </label>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 6px;">
+                                    Vehicle Make & Model *
+                                </label>
+                                <input
+                                    type="text"
+                                    name="vehicle_model"
+                                    required
+                                    placeholder="e.g. Honda Activa 6G / Maruti Swift Dzire"
+                                    oninput="updateCardPreview()"
+                                    id="input-model"
+                                    style="width: 100%; padding: 12px 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none;"
+                                >
+                            </div>
+
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 6px;">
+                                    Vehicle Plate Registration Number *
+                                </label>
+                                <input
+                                    type="text"
+                                    name="vehicle_number"
+                                    required
+                                    placeholder="e.g. KA 05 EQ 8821"
+                                    oninput="updateCardPreview()"
+                                    id="input-plate"
+                                    style="width: 100%; padding: 12px 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; text-transform: uppercase; font-family: monospace; font-weight: 700;"
+                                >
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECTION 3: LEGAL VERIFICATION & LICENSE PERMIT -->
+                    <div style="margin-bottom: 30px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px; padding-bottom: 10px; border-bottom: 1px solid #f1f5f9;">
+                            <span style="width: 28px; height: 28px; border-radius: 50%; background: #171717; color: #f9d949; display: grid; place-items: center; font-size: 13px; font-weight: 800;">3</span>
+                            <h3 style="font-size: 17px; font-weight: 800; color: #0f172a; margin: 0;">Official RTO & Legal Document Verification</h3>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 6px;">
+                                    Driving License (DL) Number *
+                                </label>
+                                <input
+                                    type="text"
+                                    name="license_number"
+                                    required
+                                    placeholder="e.g. KA-05-2021-0091244"
+                                    oninput="updateCardPreview()"
+                                    id="input-dl"
+                                    style="width: 100%; padding: 12px 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; font-family: monospace; font-weight: 700; text-transform: uppercase;"
+                                >
+                            </div>
+
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 6px;">
+                                    Vehicle Registration (RC) Number *
+                                </label>
+                                <input
+                                    type="text"
+                                    name="rc_number"
+                                    required
+                                    placeholder="e.g. RC-KA05-882190"
+                                    style="width: 100%; padding: 12px 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; font-family: monospace; font-weight: 700; text-transform: uppercase;"
+                                >
+                            </div>
+
+                            <div>
+                                <label style="display: block; font-size: 12px; font-weight: 800; text-transform: uppercase; color: #475569; margin-bottom: 6px;">
+                                    Operating City *
+                                </label>
+                                <select
+                                    name="city"
+                                    style="width: 100%; padding: 12px 14px; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 14px; outline: none; background: #fff;"
+                                >
+                                    <option value="Bengaluru" selected>Bengaluru (Silicon Valley)</option>
+                                    <option value="Hyderabad">Hyderabad</option>
+                                    <option value="Mumbai">Mumbai</option>
+                                    <option value="Delhi NCR">Delhi NCR</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- VERIFICATION PREVIEW NOTICE -->
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px; margin-top: 20px; font-size: 13px; color: #475569; line-height: 1.6;">
+                            🔒 <strong>Official Compliance & Admin Review:</strong>
+                            Upon submitting this form, your commercial driver application will be queued for review in the <strong>RideGo Admin Verification Portal</strong>. Our safety inspectors will cross-verify your driving license and vehicle registration. You will receive real-time notifications on approval.
+                        </div>
+                    </div>
+
+                    <button
+                        type="submit"
+                        style="width: 100%; padding: 16px; background: #171717; color: #f9d949; border: none; border-radius: 14px; font-size: 16px; font-weight: 800; cursor: pointer; transition: background 0.2s; box-shadow: 0 4px 15px rgba(0,0,0,0.15);"
+                        onmouseover="this.style.background='#262626'"
+                        onmouseout="this.style.background='#171717'"
+                    >
+                        Submit Application for Admin Permit Review →
+                    </button>
+                </form>
+
+                <div style="margin-top: 20px; text-align: center; font-size: 13px; color: #64748b;">
+                    Already registered as a Captain?
+                    <a href="{% url 'captain_login' %}" style="color: #b45309; font-weight: 800; text-decoration: none; margin-left: 4px;">
+                        Sign In Here →
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function selectVehicle(type) {
+    document.querySelectorAll('[id^="vcard-"]').forEach(el => {
+        el.style.borderColor = '#cbd5e1';
+        el.style.background = '#ffffff';
+    });
+    const card = document.getElementById('vcard-' + type);
+    if (card) {
+        card.style.borderColor = '#f59e0b';
+        card.style.background = '#fffbeb';
+        const radio = card.querySelector('input[type="radio"]');
+        if (radio) radio.checked = true;
+    }
+}
+selectVehicle('bike');
+
+function updateCardPreview() {
+    // live update hook
+}
+</script>
+{% endblock %}

@@ -1,0 +1,86 @@
+{% extends "booking/base.html" %}
+
+{% block title %}My Profile - RideGo{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="profile-container">
+        <div class="profile-card">
+            <div class="profile-cover">
+                <div class="profile-avatar">
+                    {{ user.username|first|upper }}
+                </div>
+            </div>
+
+            <div class="profile-content">
+                <h2>{{ user.get_full_name|default:user.username }}</h2>
+                <p>{{ user.email|default:"Active RideGo Passenger" }}</p>
+
+                <!-- STATS GRID -->
+                <div class="profile-grid" style="margin-top: 24px; margin-bottom: 24px;">
+                    <div class="profile-item" style="background: #fff8d8; border-color: #f0e4a8;">
+                        <small style="color: #776000;">WALLET BALANCE</small>
+                        <strong style="font-size: 20px; color: #171717;">₹{{ wallet_balance|floatformat:2 }}</strong>
+                    </div>
+
+                    <div class="profile-item">
+                        <small>TOTAL RIDES</small>
+                        <strong style="font-size: 20px; color: #171717;">{{ total_rides }}</strong>
+                    </div>
+
+                    <div class="profile-item">
+                        <small>COMPLETED TRIPS</small>
+                        <strong style="font-size: 20px; color: #16854a;">{{ completed_rides }}</strong>
+                    </div>
+
+                    <div class="profile-item">
+                        <small>TOTAL COMMUTE SPENT</small>
+                        <strong style="font-size: 20px; color: #171717;">₹{{ total_spent|floatformat:0 }}</strong>
+                    </div>
+                </div>
+
+                <!-- ACCOUNT DETAILS -->
+                <h3 style="font-size: 16px; font-weight: 800; margin-bottom: 12px; margin-top: 28px;">
+                    Account Information
+                </h3>
+                <div class="profile-grid">
+                    <div class="profile-item">
+                        <small>USERNAME</small>
+                        <strong>{{ user.username }}</strong>
+                    </div>
+
+                    <div class="profile-item">
+                        <small>EMAIL ADDRESS</small>
+                        <strong>{{ user.email|default:"Not specified" }}</strong>
+                    </div>
+
+                    <div class="profile-item">
+                        <small>PASSENGER SINCE</small>
+                        <strong>{{ user.date_joined|date:"d M Y" }}</strong>
+                    </div>
+
+                    <div class="profile-item">
+                        <small>MEMBERSHIP</small>
+                        <strong style="color: #b79a00;">RideGo Prime Commuter</strong>
+                    </div>
+                </div>
+
+                <!-- ACTIONS -->
+                <div style="display: flex; gap: 14px; margin-top: 32px; flex-wrap: wrap;">
+                    <a href="{% url 'home' %}" class="primary-btn" style="text-decoration: none;">
+                        Book a Ride →
+                    </a>
+
+                    <a href="{% url 'my_rides' %}" class="secondary-btn" style="text-decoration: none;">
+                        View Ride History
+                    </a>
+
+                    <a href="{% url 'logout' %}" class="secondary-btn" style="color: #b32323; border-color: #f0c5c5; text-decoration: none;">
+                        Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

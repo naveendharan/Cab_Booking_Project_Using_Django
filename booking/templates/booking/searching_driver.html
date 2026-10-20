@@ -1,0 +1,128 @@
+{% extends "booking/base.html" %}
+
+{% block title %}Connecting Captain - RideGo{% endblock %}
+
+{% block content %}
+<div class="searching-page" style="padding: 30px 16px; display: flex; justify-content: center;">
+    <div class="searching-card" style="max-width: 520px; width: 100%; background: #ffffff; border-radius: 24px; padding: 30px; box-shadow: 0 15px 40px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; text-align: center;">
+        
+        <span class="status-badge status-searching" style="margin-bottom: 12px;">SEARCHING NEARBY CAPTAINS</span>
+        <h2 style="font-size: 24px; font-weight: 800; color: #0f172a; margin: 0 0 6px;">Finding your Captain...</h2>
+        <p style="color: #64748b; font-size: 14px; margin: 0 0 16px;">
+            Locating the closest verified <strong>{{ meta.name }}</strong> near <strong>{{ ride.pickup }}</strong>.
+        </p>
+
+        <!-- REAL LEAFLET RADAR MAP -->
+        <div class="real-map-box" style="height: 260px; border-radius: 16px; overflow: hidden; position: relative; margin-bottom: 18px; border: 1.5px solid #e2e8f0;">
+            <div id="searching-radar-map" style="width: 100%; height: 100%;"></div>
+            <div class="real-map-badge" style="font-size: 10px; padding: 4px 10px; top: 10px; right: 10px;">
+                <span class="live-dot"></span>
+                ACTIVE RADAR SCAN
+            </div>
+        </div>
+
+        <!-- ROUTE PREVIEW -->
+        <div style="margin: 16px 0; padding: 14px 18px; background: #fafaf8; border: 1px solid #e8e8e3; border-radius: 12px; text-align: left; font-size: 13px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <span style="color: #64748b;">Route:</span>
+                <strong style="color: #0f172a;">{{ ride.pickup }} → {{ ride.destination }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <span style="color: #64748b;">Estimated Fare:</span>
+                <strong style="color: #10b981; font-size: 16px;">₹{{ ride.estimated_fare|floatformat:0 }}</strong>
+            </div>
+        </div>
+
+        <!-- PROGRESS STATUS -->
+        <div style="font-size: 13px; color: #64748b; margin-bottom: 20px; font-weight: 600;">
+            <span id="matching-status">📡 Contacting nearest verified Captains...</span>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            <a href="{% url 'assign_driver' ride.id %}" class="find-btn" id="assign-btn" style="text-decoration: none; padding: 13px; border-radius: 12px; font-weight: 800;">
+                Connect With Captain Now →
+            </a>
+
+            <a href="{% url 'cancel_ride' ride.id %}" style="font-size: 13px; color: #ef4444; text-decoration: none; font-weight: 600; padding: 6px;">
+                Cancel Ride Request
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const pLat = {{ ride.pickup_lat|default:"12.9784" }};
+    const pLng = {{ ride.pickup_lng|default:"77.6408" }};
+
+    const radarMap = L.map('searching-radar-map', {
+        zoomControl: false,
+        dragging: false,
+        scrollWheelZoom: false
+    }).setView([pLat, pLng], 14);
+
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; CARTO',
+        subdomains: 'abcd',
+        maxZoom: 19
+    }).addTo(radarMap);
+
+    // Pickup marker
+    const pickupIcon = L.divIcon({
+        className: 'pickup-radar-pin',
+        html: '<div class="pickup-map-marker" style="width:28px; height:28px; font-size:12px;">🟢</div>',
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
+    });
+    L.marker([pLat, pLng], { icon: pickupIcon }).addTo(radarMap);
+
+    // Pulsing radar search radius circle
+    const radarCircle = L.circle([pLat, pLng], {
+        color: '#f59e0b',
+        fillColor: '#fde68a',
+        fillOpacity: 0.35,
+        radius: 600,
+        weight: 2,
+        dashArray: '6, 6'
+    }).addTo(radarMap);
+
+    // Animate radar pulse
+    let r = 200;
+    setInterval(() => {
+        r = (r + 40) % 900;
+        radarCircle.setRadius(r);
+    }, 150);
+
+    // Nearby simulated captain pins
+    const offsets = [
+        [0.003, 0.004, '🏍️'],
+        [-0.004, 0.003, '🛺'],
+        [0.002, -0.005, '🚕']
+    ];
+    offsets.forEach(off => {
+        const cIcon = L.divIcon({
+            className: 'cap-pin',
+            html: `<div class="vehicle-map-marker" style="width:28px; height:28px; font-size:14px;">${off[2]}</div>`,
+            iconSize: [28, 28],
+            iconAnchor: [14, 14]
+        });
+        L.marker([pLat + off[0], pLng + off[1]], { icon: cIcon }).addTo(radarMap);
+    });
+});
+
+// Auto-simulate matching
+let countdown = 3;
+const statusEl = document.getElementById('matching-status');
+const timer = setInterval(() => {
+    countdown--;
+    if (countdown > 0) {
+        if (statusEl) statusEl.innerText = `Captain found! Connecting in ${countdown}s...`;
+    } else {
+        clearInterval(timer);
+        window.location.href = "{% url 'assign_driver' ride.id %}";
+    }
+}, 1000);
+</script>
+{% endblock %}
